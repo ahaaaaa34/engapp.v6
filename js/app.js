@@ -72,9 +72,7 @@ function selectedTopics() {
 function filteredQuestions(key) {
   const topics = selectedTopics();
   if (!topics.length) return [];
-  return (QUIZ_DATA[key] || []).filter(q =>
-    q.topic === 'both' || topics.includes(q.topic)
-  );
+  return (QUIZ_DATA[key] || []).filter(q => topics.includes(q.topic));
 }
 
 /* ── 問題数を動的にセット ── */
@@ -96,14 +94,12 @@ function updateCounts() {
   });
 
   // トピック別問題数バッジ
-  const cnt = { infin: 0, gerund: 0, both: 0 };
+  const cnt = { both: 0, infin: 0, gerund: 0 };
   Object.values(QUIZ_DATA).flat().forEach(q => { cnt[q.topic] = (cnt[q.topic] || 0) + 1; });
-  const infinTotal  = cnt.infin  + cnt.both;
-  const gerundTotal = cnt.gerund + cnt.both;
-  const topicInfin  = $('topic-cnt-infin');
-  const topicGerund = $('topic-cnt-gerund');
-  if (topicInfin)  topicInfin.textContent  = `${infinTotal}問`;
-  if (topicGerund) topicGerund.textContent = `${gerundTotal}問`;
+  [['topic-cnt-both', 'both'], ['topic-cnt-infin', 'infin'], ['topic-cnt-gerund', 'gerund']].forEach(([id, key]) => {
+    const el = $(id);
+    if (el) el.textContent = `${cnt[key]}問`;
+  });
 
   // スタートボタン
   const anySec = document.querySelector('.sec-card.on');
