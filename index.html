@@ -310,6 +310,20 @@
     }
 
     /* ── ExB interactive ── */
+    .exb-seg {
+      border-bottom: 2px dotted var(--mu);
+      padding-bottom: 2px; cursor: pointer;
+      transition: background .12s, border-color .12s;
+    }
+    .exb-seg:hover { background: var(--pl); }
+    .exb-seg.selected {
+      border-bottom-style: solid; border-bottom-color: var(--ng);
+      background: var(--pl);
+    }
+    .exb-seg.correct-ans {
+      border-bottom-style: solid; border-bottom-color: var(--ok);
+      background: var(--ok-bg);
+    }
     .exb-num-btn {
       display: inline-flex; align-items: center;
       background: var(--pl); color: var(--p);
@@ -678,6 +692,6 @@
 
 
 <script src="js/data.js?v=9"></script>
-<script src="js/app.js?v=16"></script>
+<script src="js/app.js?v=17"></script>
 </body>
 </html>

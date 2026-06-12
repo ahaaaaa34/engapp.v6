@@ -305,23 +305,34 @@ function renderExBQ(q) {
   const NUMS = ['①', '②', '③', '④'];
   const parts = q.question.split(/([①②③④])/);
 
+  // 番号〜次の番号の手前までを1区間として下線付きで囲む
   let html = '';
+  let open = false;
   parts.forEach(part => {
     const numIdx = NUMS.indexOf(part);
     if (numIdx >= 0) {
-      html += `<button class="exb-num-btn" data-idx="${numIdx}">${part}</button>`;
+      if (open) html += '</span>';
+      html += `<span class="exb-seg" data-idx="${numIdx}"><button class="exb-num-btn" data-idx="${numIdx}">${part}</button>`;
+      open = true;
+    } else if (open) {
+      const m = part.match(/^(.*?)([\s.,!?;:]*)$/s);
+      html += m[1] + '</span>' + m[2];
+      open = false;
     } else {
       html += part;
     }
   });
+  if (open) html += '</span>';
   $('q-text').innerHTML = html;
 
-  $('q-text').querySelectorAll('.exb-num-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (state.answered) return;
-      state.excBSelected = parseInt(btn.dataset.idx);
-      $('q-text').querySelectorAll('.exb-num-btn').forEach(b => {
-        b.classList.toggle('selected', parseInt(b.dataset.idx) === state.excBSelected);
+  $('q-text').querySelectorAll('.exb-seg').forEach(seg => {
+    seg.addEventListener('click', () => {
+      if (state.answered || seg.querySelector('.exb-num-btn').disabled) return;
+      state.excBSelected = parseInt(seg.dataset.idx);
+      $('q-text').querySelectorAll('.exb-seg').forEach(s => {
+        const on = parseInt(s.dataset.idx) === state.excBSelected;
+        s.classList.toggle('selected', on);
+        s.querySelector('.exb-num-btn').classList.toggle('selected', on);
       });
       $('exb-input-wrap').style.display = '';
       $('exb-input').focus();
@@ -363,7 +374,10 @@ $('exb-check-btn').addEventListener('click', () => {
   // Lock number buttons, highlight correct one
   $('q-text').querySelectorAll('.exb-num-btn').forEach(btn => {
     btn.disabled = true;
-    if (parseInt(btn.dataset.idx) === correctNum) btn.classList.add('correct-ans');
+    if (parseInt(btn.dataset.idx) === correctNum) {
+      btn.classList.add('correct-ans');
+      btn.closest('.exb-seg')?.classList.add('correct-ans');
+    }
   });
   $('exb-input').disabled = true;
 
@@ -424,7 +438,10 @@ $('exb-reveal-btn').addEventListener('click', () => {
 
   $('q-text').querySelectorAll('.exb-num-btn').forEach(btn => {
     btn.disabled = true;
-    if (parseInt(btn.dataset.idx) === q.answer) btn.classList.add('correct-ans');
+    if (parseInt(btn.dataset.idx) === q.answer) {
+      btn.classList.add('correct-ans');
+      btn.closest('.exb-seg')?.classList.add('correct-ans');
+    }
   });
   $('exb-phase1').style.display = 'none';
   $('exb-phase2').style.display = 'none';
