@@ -51,7 +51,7 @@ function assembleSentence(q) {
     f: { s04max: 31, s06min: 42 }, // f026-f031=both, f032-f041=infin, f042-f050=gerund
     a: { s04max: 24, s06min: 44 }, // a01-a24=both,  a25-a43=infin,   a44-a57=gerund
     b: { s04max:  5, s06min:  9 }, // b01-b05=both,  b06-b08=infin,   b09-b11=gerund
-    c: { s04max:  6, s06min: 14 }, // c01-c06=both,  c07-c13=infin,   c14-c23=gerund
+    c: { s04max:  5, s06min: 14 }, // c01-c05=both,  c06-c13=infin,   c14-c23=gerund
   };
   Object.values(QUIZ_DATA).flat().forEach(q => {
     const c = q.id[0];
