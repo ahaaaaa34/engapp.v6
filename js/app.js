@@ -520,7 +520,7 @@ function makeAnswerChip(word, wordI, pos) {
 
     timer = setTimeout(() => {
       dragging = true;
-      btn.setPointerCapture(capturedId);
+      try { btn.setPointerCapture(capturedId); } catch (_) {}
       if (navigator.vibrate) navigator.vibrate(25);
 
       const rect = btn.getBoundingClientRect();
