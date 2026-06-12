@@ -44,9 +44,37 @@ function assembleSentence(q) {
   return s.trim();
 }
 
+/* ── Topic tagging ── */
+(function tagTopics() {
+  // STEP04(both) / STEP05(infin) / STEP06(gerund) boundaries per ID prefix
+  const bounds = {
+    f: { s04max: 31, s06min: 42 }, // f026-f031=both, f032-f041=infin, f042-f050=gerund
+    a: { s04max: 24, s06min: 44 }, // a01-a24=both,  a25-a43=infin,   a44-a57=gerund
+    b: { s04max:  5, s06min:  9 }, // b01-b05=both,  b06-b08=infin,   b09-b11=gerund
+    c: { s04max:  6, s06min: 14 }, // c01-c06=both,  c07-c13=infin,   c14-c23=gerund
+  };
+  Object.values(QUIZ_DATA).flat().forEach(q => {
+    const c = q.id[0];
+    const n = parseInt(q.id.slice(1), 10);
+    const r = bounds[c];
+    if (!r) { q.topic = 'both'; return; }
+    if (n <= r.s04max) q.topic = 'both';
+    else if (n < r.s06min) q.topic = 'infin';
+    else q.topic = 'gerund';
+  });
+})();
+
+function selectedTopics() {
+  return [...document.querySelectorAll('.topic-btn.on')].map(b => b.dataset.topic);
+}
+
 /* ── 出題形式ごとの問題配列 ── */
 function filteredQuestions(key) {
-  return QUIZ_DATA[key] || [];
+  const topics = selectedTopics();
+  if (!topics.length) return [];
+  return (QUIZ_DATA[key] || []).filter(q =>
+    q.topic === 'both' || topics.includes(q.topic)
+  );
 }
 
 /* ── 問題数を動的にセット ── */
@@ -57,17 +85,40 @@ const SEC_LABELS = {
   exC:    '語句を並べかえる（確認問題）'
 };
 function updateCounts() {
+  const topics = selectedTopics();
+  const anyTopic = topics.length > 0;
+
+  // セクションごとの問題数
   ['frames', 'exA', 'exB', 'exC'].forEach(key => {
     const n = filteredQuestions(key).length;
     const elem = document.getElementById('sub-' + key);
     if (elem) elem.textContent = n > 0 ? `${n}問 · ${SEC_LABELS[key]}` : `（該当なし）`;
   });
-  // スタートボタンの有効・無効
+
+  // トピック別問題数バッジ
+  const cnt = { infin: 0, gerund: 0, both: 0 };
+  Object.values(QUIZ_DATA).flat().forEach(q => { cnt[q.topic] = (cnt[q.topic] || 0) + 1; });
+  const infinTotal  = cnt.infin  + cnt.both;
+  const gerundTotal = cnt.gerund + cnt.both;
+  const topicInfin  = $('topic-cnt-infin');
+  const topicGerund = $('topic-cnt-gerund');
+  if (topicInfin)  topicInfin.textContent  = `${infinTotal}問`;
+  if (topicGerund) topicGerund.textContent = `${gerundTotal}問`;
+
+  // スタートボタン
   const anySec = document.querySelector('.sec-card.on');
   const total  = ['frames','exA','exB','exC'].reduce((s,k)=> s + (document.querySelector(`.sec-card.on[data-sec="${k}"]`) ? filteredQuestions(k).length : 0), 0);
-  $('start-btn').disabled = !(anySec && total > 0);
+  $('start-btn').disabled = !(anyTopic && anySec && total > 0);
 }
 updateCounts();
+
+/* ── Topic toggle ── */
+document.querySelectorAll('.topic-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('on');
+    updateCounts();
+  });
+});
 
 /* ── Section toggle ── */
 document.querySelectorAll('.sec-card').forEach(card => {
