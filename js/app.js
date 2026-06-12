@@ -305,24 +305,29 @@ function renderExBQ(q) {
   const NUMS = ['①', '②', '③', '④'];
   const parts = q.question.split(/([①②③④])/);
 
-  // 番号〜次の番号の手前までを1区間として下線付きで囲む
+  // 各番号の下線区間を囲む（spans があれば教科書どおりの範囲、なければ次の番号の手前まで）
   let html = '';
-  let open = false;
+  let open = -1;
   parts.forEach(part => {
     const numIdx = NUMS.indexOf(part);
     if (numIdx >= 0) {
-      if (open) html += '</span>';
+      if (open >= 0) html += '</span>';
       html += `<span class="exb-seg" data-idx="${numIdx}"><button class="exb-num-btn" data-idx="${numIdx}">${part}</button>`;
-      open = true;
-    } else if (open) {
-      const m = part.match(/^(.*?)([\s.,!?;:]*)$/s);
-      html += m[1] + '</span>' + m[2];
-      open = false;
+      open = numIdx;
+    } else if (open >= 0) {
+      const span = q.spans && q.spans[open];
+      if (span && part.startsWith(span)) {
+        html += span + '</span>' + part.slice(span.length);
+      } else {
+        const m = part.match(/^(.*?)([\s.,!?;:]*)$/s);
+        html += m[1] + '</span>' + m[2];
+      }
+      open = -1;
     } else {
       html += part;
     }
   });
-  if (open) html += '</span>';
+  if (open >= 0) html += '</span>';
   $('q-text').innerHTML = html;
 
   $('q-text').querySelectorAll('.exb-seg').forEach(seg => {
