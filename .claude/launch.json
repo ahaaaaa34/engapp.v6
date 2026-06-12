@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "grammar",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8123"],
+      "port": 8123
+    },
+    {
+      "name": "grammar-flat",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8130", "--directory", "/Users/m4/Claude/grammar-github"],
+      "port": 8130
+    }
+  ]
+}
