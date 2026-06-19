@@ -767,6 +767,48 @@ $('prev-q-btn').addEventListener('click', () => {
   window.scrollTo(0, 0);
 });
 
+/* ── 問題一覧プルダウン ── */
+function renderQList() {
+  const grid = $('qlist-grid');
+  grid.innerHTML = '';
+  state.queue.forEach((q, i) => {
+    const cell = document.createElement('button');
+    cell.className   = 'qlist-cell';
+    cell.textContent = i + 1;
+    const rec = state.records[i];
+    if (rec) cell.classList.add(rec.isOK ? 'ok' : 'ng');
+    if (i === state.idx) cell.classList.add('current');
+    cell.addEventListener('click', () => {
+      closeQList();
+      if (i !== state.idx) { state.idx = i; renderQ(); window.scrollTo(0, 0); }
+    });
+    grid.appendChild(cell);
+  });
+}
+
+function openQList() {
+  renderQList();
+  const bar = document.querySelector('.quiz-top');
+  $('qlist-panel').style.top = (bar.getBoundingClientRect().bottom + 6) + 'px';
+  $('qlist-backdrop').classList.add('show');
+  $('qlist-panel').classList.add('show');
+  $('prog-trigger').classList.add('prog-trigger-open');
+  $('prog-trigger').setAttribute('aria-expanded', 'true');
+}
+
+function closeQList() {
+  $('qlist-backdrop').classList.remove('show');
+  $('qlist-panel').classList.remove('show');
+  $('prog-trigger').classList.remove('prog-trigger-open');
+  $('prog-trigger').setAttribute('aria-expanded', 'false');
+}
+
+$('prog-trigger').addEventListener('click', () => {
+  if ($('qlist-panel').classList.contains('show')) closeQList();
+  else openQList();
+});
+$('qlist-backdrop').addEventListener('click', closeQList);
+
 /* ── Give up: 不正解扱いで答えを表示 (Enter) ── */
 function giveUp() {
   if (state.answered) return;
@@ -789,6 +831,7 @@ function giveUp() {
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter' || e.isComposing) return;
   if (!$('screen-quiz').classList.contains('active')) return;
+  if ($('qlist-panel').classList.contains('show')) return; // 一覧表示中は無効
   if (document.activeElement === $('exb-input')) return; // 入力中はExBの確認に任せる
   e.preventDefault();
   if (state.answered) {

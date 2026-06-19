@@ -105,10 +105,60 @@
       background: none; border: none; color: var(--mu); cursor: pointer;
       padding: 6px; border-radius: 8px; display: flex; align-items: center; flex-shrink: 0;
     }
-    .prog-wrap { flex: 1; }
-    .prog-txt  { font-size: 12px; color: var(--mu); margin-bottom: 4px; }
+    .prog-wrap {
+      flex: 1; background: none; border: none; padding: 4px 0; margin: 0;
+      cursor: pointer; font-family: inherit; text-align: left; display: block;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .prog-txt  {
+      font-size: 12px; color: var(--mu); margin-bottom: 4px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .prog-caret { transition: transform .2s; flex-shrink: 0; }
+    .prog-trigger-open .prog-caret { transform: rotate(180deg); }
     .prog-bar  { height: 5px; background: var(--br); border-radius: 3px; overflow: hidden; }
     .prog-fill { height: 100%; background: var(--p); border-radius: 3px; transition: width .35s ease; }
+
+    /* ── 問題一覧プルダウン ── */
+    .qlist-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 19;
+      background: rgba(0,0,0,.18);
+    }
+    .qlist-backdrop.show { display: block; }
+    .qlist-panel {
+      display: none; position: fixed; left: 8px; right: 8px; z-index: 20;
+      background: var(--card); border: 1px solid var(--br);
+      border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.22);
+      padding: 14px; max-height: 70vh; overflow-y: auto;
+    }
+    .qlist-panel.show { display: block; animation: fadeUp .2s ease; }
+    .qlist-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .qlist-title { font-size: 13px; font-weight: 700; color: var(--tx); }
+    .qlist-legend { display: flex; gap: 10px; font-size: 11px; color: var(--mu); }
+    .qlist-legend span { display: flex; align-items: center; gap: 4px; }
+    .qlist-legend .lg { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+    .qlist-legend .lg.ok { background: var(--ok); }
+    .qlist-legend .lg.ng { background: var(--ng); }
+    .qlist-legend .lg.un { background: var(--bg); border: 1px solid var(--br); }
+    .qlist-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+      gap: 7px;
+    }
+    .qlist-cell {
+      aspect-ratio: 1 / 1; min-height: 40px;
+      border: 1px solid var(--br); border-radius: 8px;
+      background: var(--bg); color: var(--mu);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: transform .1s;
+    }
+    .qlist-cell:active { transform: scale(.94); }
+    .qlist-cell.ok  { background: var(--ok); border-color: var(--ok); color: #fff; }
+    .qlist-cell.ng  { background: var(--ng); border-color: var(--ng); color: #fff; }
+    .qlist-cell.current { box-shadow: 0 0 0 3px var(--p); }
 
     .quiz-body { max-width: 480px; margin: 0 auto; padding: 18px 16px 48px; }
     .q-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -585,13 +635,30 @@
         <path d="M14 17L8 11L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-    <div class="prog-wrap">
-      <div class="prog-txt" id="prog-txt">1 / 43</div>
+    <button class="prog-wrap" id="prog-trigger" aria-label="問題一覧" aria-expanded="false">
+      <div class="prog-txt">
+        <span id="prog-txt">1 / 43</span>
+        <svg class="prog-caret" width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 5L6 8L9 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
       <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-    </div>
+    </button>
     <button class="hamburger-btn-sm" id="hamburger-quiz" aria-label="メニュー">
       <span></span><span></span><span></span>
     </button>
+  </div>
+
+  <!-- 問題一覧プルダウン -->
+  <div class="qlist-backdrop" id="qlist-backdrop"></div>
+  <div class="qlist-panel" id="qlist-panel">
+    <div class="qlist-head">
+      <span class="qlist-title">問題一覧</span>
+      <div class="qlist-legend">
+        <span><i class="lg ok"></i>正解</span>
+        <span><i class="lg ng"></i>不正解</span>
+        <span><i class="lg un"></i>未回答</span>
+      </div>
+    </div>
+    <div class="qlist-grid" id="qlist-grid"></div>
   </div>
 
   <div class="quiz-body">
@@ -703,6 +770,6 @@
 
 
 <script src="js/data.js?v=10"></script>
-<script src="js/app.js?v=19"></script>
+<script src="js/app.js?v=20"></script>
 </body>
 </html>
