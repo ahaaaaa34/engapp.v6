@@ -6,6 +6,7 @@ const state = {
   idx: 0,
   answered: false,
   scores: {},
+  records: [],
   wrongIds: [],
   correctIds: [],
   excAllWords: [],
@@ -151,6 +152,7 @@ $('home-retry-wrong-btn').addEventListener('click', () => {
     state.fullQueue = wrongQ;
     state.idx       = 0;
     state.answered  = false;
+    state.records   = [];
     state.wrongIds  = [];
     state.correctIds = [];
     state.scores    = {};
@@ -176,6 +178,7 @@ $('start-btn').addEventListener('click', () => {
   state.fullQueue = q;
   state.idx = 0;
   state.answered = false;
+  state.records = [];
   state.wrongIds = [];
   state.correctIds = [];
   state.scores = {};
@@ -196,6 +199,7 @@ $('retry-btn').addEventListener('click', () => {
   state.queue = [...state.fullQueue];
   state.idx = 0;
   state.answered = false;
+  state.records = [];
   state.wrongIds = [];
   state.correctIds = [];
   Object.values(state.scores).forEach(s => { s.c = 0; s.t = 0; });
@@ -210,6 +214,7 @@ $('retry-wrong-btn').addEventListener('click', () => {
   state.fullQueue = wrongQ;
   state.idx = 0;
   state.answered = false;
+  state.records = [];
   state.wrongIds = [];
   state.correctIds = [];
   state.scores = {};
@@ -245,6 +250,8 @@ function renderQ() {
   $('q-ja').style.display = 'none';
   state.answered = false;
 
+  $('prev-q-btn').style.display = state.idx > 0 ? '' : 'none';
+
   if (q.type === 'exB') {
     renderExBQ(q);
   } else if (q.type === 'exC') {
@@ -253,6 +260,10 @@ function renderQ() {
     $('opts').style.display = '';
     renderChoiceQ(q);
   }
+
+  // Already answered (revisited via 前へ) → replay its recorded result read-only
+  const rec = state.records[state.idx];
+  if (rec) replayRecord(q, rec);
 }
 
 /* ── Choice (FRAME / ExA) ── */
@@ -277,27 +288,8 @@ function selectOption(chosen) {
 
   const q    = state.queue[state.idx];
   const isOK = chosen === q.answer;
-  const NUMS = ['①', '②', '③', '④'];
-
-  state.scores[q.section].t++;
-  if (isOK) { state.scores[q.section].c++; state.correctIds.push(q.id); }
-  else        state.wrongIds.push(q.id);
-
-  const btns = $('opts').querySelectorAll('.opt-btn');
-  btns.forEach((btn, i) => {
-    btn.disabled = true;
-    if (i === q.answer)    btn.classList.add('correct');
-    else if (i === chosen) btn.classList.add('wrong');
-  });
-
-  showFeedback({
-    isOK,
-    headText:      isOK ? '✓ 正解！' : `✗ 不正解　正解: ${NUMS[q.answer]}`,
-    fixText:       null,
-    correctedText: null,
-    traText:  q.translation ? `[訳] ${q.translation}` : null,
-    expText:  q.explanation
-  });
+  const rec  = recordResult(q, 'choice', isOK, { chosen });
+  replayChoice(q, rec);
 }
 
 /* ── ExB ── */
@@ -410,22 +402,8 @@ function resolveExB(textOK) {
 
   const q    = state.queue[state.idx];
   const isOK = state.excBNumOK && textOK;
-  const NUMS = ['①', '②', '③', '④'];
-
-  state.scores[q.section].t++;
-  if (isOK) { state.scores[q.section].c++; state.correctIds.push(q.id); }
-  else        state.wrongIds.push(q.id);
-
-  $('exb-phase2').style.display = 'none';
-
-  showFeedback({
-    isOK,
-    headText:      isOK ? '✓ 正解！' : `✗ 不正解　正解: ${NUMS[q.answer]}`,
-    fixText:       q.correction,
-    correctedText: q.corrected,
-    traText:  q.translation ? `[訳] ${q.translation}` : null,
-    expText:  q.explanation
-  });
+  const rec  = recordResult(q, 'exB', isOK, { revealed: false });
+  replayExB(q, rec);
 }
 
 $('exb-self-ok').addEventListener('click', () => resolveExB(true));
@@ -435,30 +413,9 @@ $('exb-reveal-btn').addEventListener('click', () => {
   if (state.answered) return;
   state.answered = true;
 
-  const q    = state.queue[state.idx];
-  const NUMS = ['①', '②', '③', '④'];
-
-  state.scores[q.section].t++;
-  state.wrongIds.push(q.id);
-
-  $('q-text').querySelectorAll('.exb-num-btn').forEach(btn => {
-    btn.disabled = true;
-    if (parseInt(btn.dataset.idx) === q.answer) {
-      btn.classList.add('correct-ans');
-      btn.closest('.exb-seg')?.classList.add('correct-ans');
-    }
-  });
-  $('exb-phase1').style.display = 'none';
-  $('exb-phase2').style.display = 'none';
-
-  showFeedback({
-    isOK:          false,
-    headText:      `答え: ${NUMS[q.answer]}`,
-    fixText:       q.correction,
-    correctedText: q.corrected,
-    traText:  q.translation ? `[訳] ${q.translation}` : null,
-    expText:  q.explanation
-  });
+  const q   = state.queue[state.idx];
+  const rec = recordResult(q, 'exB', false, { revealed: true });
+  replayExB(q, rec);
 });
 
 /* ── ExC ── */
@@ -482,6 +439,8 @@ function renderExCQ(q) {
   state.excUsed     = new Set();
   state.excAnswer   = [];
 
+  $('pool-area').style.display = '';
+  $('check-btn').style.display = '';
   $('check-btn').disabled = true;
   renderExCChips();
 }
@@ -645,20 +604,91 @@ $('check-btn').addEventListener('click', () => {
   const q         = state.queue[state.idx];
   const assembled = assembleSentence(q);
   const isOK      = normalize(assembled) === normalize(q.answer);
+  const words     = state.excAnswer.map(x => x.word);
 
+  const rec = recordResult(q, 'exC', isOK, { words, revealed: false });
+  replayExC(q, rec);
+});
+
+/* ── Result recording (scored once per question; back-nav replays it) ── */
+function recordResult(q, kind, isOK, extra) {
+  const rec = Object.assign({ kind, isOK }, extra || {});
+  state.records[state.idx] = rec;
   state.scores[q.section].t++;
   if (isOK) { state.scores[q.section].c++; state.correctIds.push(q.id); }
   else        state.wrongIds.push(q.id);
+  saveProgress();
+  return rec;
+}
 
-  showFeedback({
-    isOK,
-    headText:      isOK ? '✓ 正解！' : '✗ 不正解',
-    fixText:       q.answer,
-    correctedText: null,
-    traText:       q.translation ? `[訳] ${q.translation}` : null,
-    expText:       q.explanation
+/* ── Replay a previously-answered question (read-only) ── */
+const NUMS = ['①', '②', '③', '④'];
+
+function replayChoice(q, rec) {
+  $('opts').querySelectorAll('.opt-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer)        btn.classList.add('correct');
+    else if (i === rec.chosen) btn.classList.add('wrong');
   });
-});
+  showFeedback({
+    isOK:     rec.isOK,
+    headText: rec.chosen === -1 ? `答え: ${NUMS[q.answer]}`
+            : rec.isOK ? '✓ 正解！' : `✗ 不正解　正解: ${NUMS[q.answer]}`,
+    fixText: null, correctedText: null,
+    traText: q.translation ? `[訳] ${q.translation}` : null,
+    expText: q.explanation
+  });
+}
+
+function replayExB(q, rec) {
+  $('q-text').querySelectorAll('.exb-num-btn').forEach(btn => {
+    btn.disabled = true;
+    if (parseInt(btn.dataset.idx) === q.answer) {
+      btn.classList.add('correct-ans');
+      btn.closest('.exb-seg')?.classList.add('correct-ans');
+    }
+  });
+  $('exb-input').disabled = true;
+  $('exb-phase1').style.display = 'none';
+  $('exb-phase2').style.display = 'none';
+  showFeedback({
+    isOK:     rec.isOK,
+    headText: rec.revealed ? `答え: ${NUMS[q.answer]}`
+            : rec.isOK ? '✓ 正解！' : `✗ 不正解　正解: ${NUMS[q.answer]}`,
+    fixText: q.correction, correctedText: q.corrected,
+    traText: q.translation ? `[訳] ${q.translation}` : null,
+    expText: q.explanation
+  });
+}
+
+function replayExC(q, rec) {
+  const buildEl = $('build-area');
+  [...buildEl.querySelectorAll('.wchip-ans')].forEach(el => el.remove());
+  $('build-hint').style.display = (rec.words && rec.words.length) ? 'none' : '';
+  (rec.words || []).forEach(w => {
+    const b = document.createElement('button');
+    b.className   = 'wchip wchip-ans';
+    b.textContent = w;
+    b.disabled    = true;
+    buildEl.appendChild(b);
+  });
+  $('pool-area').style.display  = 'none';
+  $('check-btn').style.display  = 'none';
+  showFeedback({
+    isOK:     rec.isOK,
+    headText: rec.revealed ? '答え' : rec.isOK ? '✓ 正解！' : '✗ 不正解',
+    fixText:  q.answer, correctedText: null,
+    traText:  q.translation ? `[訳] ${q.translation}` : null,
+    expText:  q.explanation
+  });
+}
+
+function replayRecord(q, rec) {
+  state.answered = true;
+  if (rec.kind === 'exB')      replayExB(q, rec);
+  else if (rec.kind === 'exC') replayExC(q, rec);
+  else                         replayChoice(q, rec);
+}
 
 /* ── Shared feedback ── */
 function showFeedback({ isOK, headText, fixText, correctedText, traText, expText }) {
@@ -684,7 +714,6 @@ function showFeedback({ isOK, headText, fixText, correctedText, traText, expText
 
   exp.textContent = expText;
   $('next-btn').className = 'next-btn show';
-  saveProgress();
 }
 
 function loadStoredWrongIds() {
@@ -727,6 +756,45 @@ $('next-btn').addEventListener('click', () => {
   } else {
     renderQ();
     window.scrollTo(0, 0);
+  }
+});
+
+/* ── Prev (前の問題へ。間違えた記録は保持したまま) ── */
+$('prev-q-btn').addEventListener('click', () => {
+  if (state.idx === 0) return;
+  state.idx--;
+  renderQ();
+  window.scrollTo(0, 0);
+});
+
+/* ── Give up: 不正解扱いで答えを表示 (Enter) ── */
+function giveUp() {
+  if (state.answered) return;
+  const q = state.queue[state.idx];
+  if (q.type === 'exB') {
+    $('exb-reveal-btn').click();
+  } else if (q.type === 'exC') {
+    state.answered = true;
+    $('check-btn').disabled = true;
+    const rec = recordResult(q, 'exC', false, { words: state.excAnswer.map(x => x.word), revealed: true });
+    replayExC(q, rec);
+  } else {
+    state.answered = true;
+    const rec = recordResult(q, 'choice', false, { chosen: -1 });
+    replayChoice(q, rec);
+  }
+}
+
+/* ── Enter: 未回答→不正解で答え表示 / 回答済→次の問題 ── */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.isComposing) return;
+  if (!$('screen-quiz').classList.contains('active')) return;
+  if (document.activeElement === $('exb-input')) return; // 入力中はExBの確認に任せる
+  e.preventDefault();
+  if (state.answered) {
+    if ($('next-btn').classList.contains('show')) $('next-btn').click();
+  } else {
+    giveUp();
   }
 });
 
