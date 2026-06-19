@@ -143,22 +143,35 @@
     .qlist-legend .lg.ok { background: var(--ok); }
     .qlist-legend .lg.ng { background: var(--ng); }
     .qlist-legend .lg.un { background: var(--bg); border: 1px solid var(--br); }
-    .qlist-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-      gap: 7px;
+    .qlist-grid { display: flex; flex-direction: column; gap: 6px; }
+    .qlist-row {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; text-align: left; cursor: pointer;
+      border: 1px solid var(--br); border-radius: 9px;
+      background: var(--card); color: var(--tx);
+      padding: 11px 12px; font-family: inherit;
+      border-left-width: 4px; transition: background .1s;
     }
-    .qlist-cell {
-      aspect-ratio: 1 / 1; min-height: 40px;
-      border: 1px solid var(--br); border-radius: 8px;
-      background: var(--bg); color: var(--mu);
-      font-family: inherit; font-size: 13px; font-weight: 700;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: transform .1s;
+    .qlist-row:hover { background: var(--pl); }
+    .qlist-row:active { background: var(--bg); }
+    .qlist-num {
+      flex-shrink: 0; min-width: 26px; height: 22px; padding: 0 6px;
+      border-radius: 6px; background: var(--bg); color: var(--mu);
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
     }
-    .qlist-cell:active { transform: scale(.94); }
-    .qlist-cell.ok  { background: var(--ok); border-color: var(--ok); color: #fff; }
-    .qlist-cell.ng  { background: var(--ng); border-color: var(--ng); color: #fff; }
-    .qlist-cell.current { box-shadow: 0 0 0 3px var(--p); }
+    .qlist-text {
+      flex: 1; min-width: 0; font-size: 13px; line-height: 1.5; color: var(--tx);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .qlist-mark { flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--mu); }
+    /* status */
+    .qlist-row.ok  { border-left-color: var(--ok); }
+    .qlist-row.ok  .qlist-mark { color: var(--ok); }
+    .qlist-row.ng  { border-left-color: var(--ng); }
+    .qlist-row.ng  .qlist-mark { color: var(--ng); }
+    .qlist-row.un  { border-left-color: var(--br); }
+    .qlist-row.current { background: var(--pl); box-shadow: 0 0 0 2px var(--p) inset; }
 
     .quiz-body { max-width: 480px; margin: 0 auto; padding: 18px 16px 48px; }
     .q-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -770,6 +783,6 @@
 
 
 <script src="js/data.js?v=10"></script>
-<script src="js/app.js?v=20"></script>
+<script src="js/app.js?v=21"></script>
 </body>
 </html>

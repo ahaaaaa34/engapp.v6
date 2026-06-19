@@ -768,21 +768,40 @@ $('prev-q-btn').addEventListener('click', () => {
 });
 
 /* ── 問題一覧プルダウン ── */
+function qListText(q) {
+  if (q.type === 'exC') return q.japanese || q.translation || q.answer || '並べかえ問題';
+  // choice / exB: 本文（①②③④の記号は除去）
+  return (q.question || '').replace(/[①②③④]/g, '').replace(/\(\s*\)/g, '(　)').trim();
+}
+
 function renderQList() {
   const grid = $('qlist-grid');
   grid.innerHTML = '';
   state.queue.forEach((q, i) => {
-    const cell = document.createElement('button');
-    cell.className   = 'qlist-cell';
-    cell.textContent = i + 1;
+    const row = document.createElement('button');
+    row.className = 'qlist-row';
     const rec = state.records[i];
-    if (rec) cell.classList.add(rec.isOK ? 'ok' : 'ng');
-    if (i === state.idx) cell.classList.add('current');
-    cell.addEventListener('click', () => {
+    row.classList.add(rec ? (rec.isOK ? 'ok' : 'ng') : 'un');
+    if (i === state.idx) row.classList.add('current');
+
+    const num = document.createElement('span');
+    num.className = 'qlist-num';
+    num.textContent = i + 1;
+
+    const text = document.createElement('span');
+    text.className = 'qlist-text';
+    text.textContent = qListText(q);
+
+    const mark = document.createElement('span');
+    mark.className = 'qlist-mark';
+    mark.textContent = rec ? (rec.isOK ? '✓' : '✗') : '';
+
+    row.append(num, text, mark);
+    row.addEventListener('click', () => {
       closeQList();
       if (i !== state.idx) { state.idx = i; renderQ(); window.scrollTo(0, 0); }
     });
-    grid.appendChild(cell);
+    grid.appendChild(row);
   });
 }
 
