@@ -337,6 +337,33 @@
     .next-btn.fixed-bottom:active { transform: none; opacity: .9; }
     .next-btn:hover { background: var(--pd); }
 
+    /* 復習マークボタン（次の問題ボタンの左） */
+    .next-row { display: flex; gap: 10px; align-items: stretch; }
+    .next-row .next-btn { flex: 1; }
+    .mark-btn {
+      width: 64px; margin-top: 14px; border-radius: var(--r);
+      border: 2px solid var(--br); background: var(--card); color: var(--mu);
+      font-size: 18px; font-weight: 700; font-family: inherit; cursor: pointer;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; line-height: 1.1; animation: fadeUp .25s ease;
+      transition: background .12s, border-color .12s, color .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mark-btn span { font-size: 10px; letter-spacing: .05em; }
+    .mark-btn:active { transform: scale(.96); }
+    .mark-btn.on { background: var(--ng); border-color: var(--ng); color: #fff; }
+    /* 選択問題の回答後（次へボタン下部固定時）は左隣に固定 */
+    .mark-btn.fixed-bottom {
+      position: fixed; left: 0; bottom: 0; z-index: 17;
+      width: 76px; margin: 0; border-radius: 0; border: none;
+      border-right: 1px solid rgba(255,255,255,.25);
+      padding: 18px 0 calc(18px + env(safe-area-inset-bottom));
+      background: var(--pd); color: #fff;
+      animation: slideUpIn .25s ease;
+    }
+    .mark-btn.fixed-bottom.on { background: var(--ng); }
+    .next-btn.show.fixed-bottom { left: 76px; }
+
     /* Prev question button (戻る) */
     .prev-q-btn {
       width: 100%; padding: 11px; border-radius: var(--r);
@@ -820,7 +847,12 @@
       <div class="fb-exp"       id="fb-exp"></div>
     </div>
 
-    <button class="next-btn" id="next-btn">次の問題 →</button>
+    <div class="next-row">
+      <button class="mark-btn" id="mark-btn" style="display:none" aria-label="復習リストに追加">
+        ★<span>復習</span>
+      </button>
+      <button class="next-btn" id="next-btn">次の問題 →</button>
+    </div>
     <button class="prev-q-btn" id="prev-q-btn" style="display:none">← 前の問題に戻る</button>
   </div>
 
@@ -872,6 +904,6 @@
 
 
 <script src="js/data.js?v=12"></script>
-<script src="js/app.js?v=25"></script>
+<script src="js/app.js?v=26"></script>
 </body>
 </html>

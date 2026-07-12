@@ -9,6 +9,7 @@ const state = {
   records: [],
   wrongIds: [],
   correctIds: [],
+  marked: [],
   excAllWords: [],
   excUsed: new Set(),
   excAnswer: [],
@@ -155,6 +156,7 @@ $('home-retry-wrong-btn').addEventListener('click', () => {
     state.records   = [];
     state.wrongIds  = [];
     state.correctIds = [];
+    state.marked = [];
     state.scores    = {};
     wrongQ.forEach(item => {
       if (!state.scores[item.section])
@@ -181,6 +183,7 @@ $('start-btn').addEventListener('click', () => {
   state.records = [];
   state.wrongIds = [];
   state.correctIds = [];
+  state.marked = [];
   state.scores = {};
   q.forEach(item => {
     if (!state.scores[item.section])
@@ -202,13 +205,15 @@ $('retry-btn').addEventListener('click', () => {
   state.records = [];
   state.wrongIds = [];
   state.correctIds = [];
+  state.marked = [];
   Object.values(state.scores).forEach(s => { s.c = 0; s.t = 0; });
   showScreen('screen-quiz');
   renderQ();
 });
 
 $('retry-wrong-btn').addEventListener('click', () => {
-  const wrongQ = state.fullQueue.filter(q => state.wrongIds.includes(q.id));
+  const review = new Set([...state.wrongIds, ...state.marked]);
+  const wrongQ = state.fullQueue.filter(q => review.has(q.id));
   if (!wrongQ.length) return;
   state.queue = wrongQ;
   state.fullQueue = wrongQ;
@@ -217,6 +222,7 @@ $('retry-wrong-btn').addEventListener('click', () => {
   state.records = [];
   state.wrongIds = [];
   state.correctIds = [];
+  state.marked = [];
   state.scores = {};
   wrongQ.forEach(item => {
     if (!state.scores[item.section])
@@ -248,6 +254,8 @@ function renderQ() {
   $('fill-zone').style.display = 'none';
   $('fb-card').className = 'fb-card';
   $('next-btn').className = 'next-btn';
+  $('mark-btn').className = 'mark-btn';
+  $('mark-btn').style.display = 'none';
   $('q-ja').style.display = 'none';
   state.answered = false;
 
@@ -656,8 +664,9 @@ function replayChoice(q, rec) {
     traText: q.translation ? `[訳] ${q.translation}` : null,
     expText: q.explanation
   });
-  // 選択問題の回答後は次へボタンを下部固定
+  // 選択問題の回答後は次へボタンを下部固定（復習ボタンも左隣に固定）
   $('next-btn').classList.add('fixed-bottom');
+  $('mark-btn').classList.add('fixed-bottom');
 }
 
 function replayExB(q, rec) {
@@ -793,6 +802,12 @@ function showFeedback({ isOK, headText, fixText, correctedText, traText, expText
 
   exp.textContent = expText;
   $('next-btn').className = 'next-btn show';
+
+  // 復習マークボタン（回答後に表示、マーク済みなら点灯）
+  const mq = state.queue[state.idx];
+  const mk = $('mark-btn');
+  mk.style.display = 'flex';
+  mk.classList.toggle('on', state.marked.includes(mq.id));
 }
 
 function loadStoredWrongIds() {
@@ -809,9 +824,11 @@ function saveProgress() {
     const pct = totalT ? Math.round(totalC / totalT * 100) : 0;
 
     // 間違えた問題はセッションをまたいで累積保存。あとで正解した問題はリストから外す。
+    // ★復習マークした問題は正解していてもリストに残す。
     const set = new Set(loadStoredWrongIds());
     state.wrongIds.forEach(id => set.add(id));
-    state.correctIds.forEach(id => set.delete(id));
+    state.correctIds.forEach(id => { if (!state.marked.includes(id)) set.delete(id); });
+    state.marked.forEach(id => set.add(id));
     const cumWrong = [...set];
 
     localStorage.setItem('grammar-0203-score', JSON.stringify({ c: totalC, t: totalT, pct, wrongIds: cumWrong }));
@@ -839,6 +856,16 @@ function advanceNext() {
 }
 
 $('next-btn').addEventListener('click', advanceNext);
+
+/* ── 復習マーク：正解していても復習リストに残す ── */
+$('mark-btn').addEventListener('click', () => {
+  const q = state.queue[state.idx];
+  const i = state.marked.indexOf(q.id);
+  if (i >= 0) state.marked.splice(i, 1);
+  else        state.marked.push(q.id);
+  $('mark-btn').classList.toggle('on', i < 0);
+  saveProgress();
+});
 
 /* ── 画面下のトラックパッド（選択問題用） ── */
 let tpLocked = false;
@@ -1062,8 +1089,9 @@ function showResults() {
   });
 
   const wrongBtn = $('retry-wrong-btn');
-  if (state.wrongIds.length > 0) {
-    wrongBtn.textContent   = `✗ 間違えた ${state.wrongIds.length} 問だけもう一度`;
+  const reviewCount = new Set([...state.wrongIds, ...state.marked]).size;
+  if (reviewCount > 0) {
+    wrongBtn.textContent   = `✗ 間違えた ${reviewCount} 問だけもう一度`;
     wrongBtn.style.display = '';
   } else {
     wrongBtn.style.display = 'none';
