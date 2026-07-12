@@ -256,10 +256,14 @@ function renderQ() {
   const isChoice = q.type !== 'exB' && q.type !== 'exC' && q.type !== 'fill';
   $('ans-pad').style.display = isChoice ? '' : 'none';
   document.querySelector('.quiz-body').classList.toggle('pad-on', isChoice);
-  $('ans-pad').querySelectorAll('.ans-pad-btn').forEach(b => {
-    b.disabled = false;
-    b.classList.remove('correct', 'wrong');
-  });
+  $('ans-pad').classList.remove('active');
+  tpLocked = false;
+  if (isChoice) {
+    $('ans-pad').classList.add('active');
+    $('tp-hint').textContent = 'スライドで選択 · 離して決定';
+    $('tp-hint').classList.remove('hidden');
+    $('tp-surface').classList.remove('touching');
+  }
 
   if (q.type === 'exB') {
     renderExBQ(q);
@@ -295,12 +299,7 @@ function renderChoiceQ(q) {
 
 function selectOption(chosen) {
   const q = state.queue[state.idx];
-  if (state.answered) {
-    // 回答後：選んだ選択肢をもう一度タップ→次の問題へ（FRAME / Ex.A）
-    const rec = state.records[state.idx];
-    if (rec && rec.kind === 'choice' && chosen === rec.chosen) advanceNext();
-    return;
-  }
+  if (state.answered) return;
   state.answered = true;
 
   const isOK = chosen === q.answer;
@@ -644,16 +643,11 @@ function replayChoice(q, rec) {
   $('opts').querySelectorAll('.opt-btn').forEach((btn, i) => {
     if (i === q.answer)        btn.classList.add('correct');
     else if (i === rec.chosen) btn.classList.add('wrong');
-    // 選んだ選択肢だけ有効のまま残し、もう一度タップで次へ進めるようにする
-    if (i === rec.chosen) { btn.disabled = false; btn.classList.add('tap-next'); }
-    else                    btn.disabled = true;
+    btn.disabled = true;
   });
-  // 下の回答パッドも同じ状態に同期
-  $('ans-pad').querySelectorAll('.ans-pad-btn').forEach((btn, i) => {
-    if (i === q.answer)        btn.classList.add('correct');
-    else if (i === rec.chosen) btn.classList.add('wrong');
-    btn.disabled = i !== rec.chosen;
-  });
+  // トラックパッドを隠して固定の「次の問題」ボタンを表示
+  $('ans-pad').style.display = 'none';
+  tpLocked = true;
   showFeedback({
     isOK:     rec.isOK,
     headText: rec.chosen === -1 ? `答え: ${NUMS[q.answer]}`
@@ -662,6 +656,8 @@ function replayChoice(q, rec) {
     traText: q.translation ? `[訳] ${q.translation}` : null,
     expText: q.explanation
   });
+  // 選択問題の回答後は次へボタンを下部固定
+  $('next-btn').classList.add('fixed-bottom');
 }
 
 function replayExB(q, rec) {
@@ -844,9 +840,85 @@ function advanceNext() {
 
 $('next-btn').addEventListener('click', advanceNext);
 
-/* ── 画面下の回答パッド（選択問題用） ── */
-$('ans-pad').querySelectorAll('.ans-pad-btn').forEach(btn => {
-  btn.addEventListener('click', () => selectOption(parseInt(btn.dataset.i)));
+/* ── 画面下のトラックパッド（選択問題用） ── */
+let tpLocked = false;
+let tpCurrentZone = -1;
+
+function tpHighlightZone(idx) {
+  if (tpCurrentZone === idx) return;
+  tpCurrentZone = idx;
+  // 上の選択肢だけハイライト
+  $('opts').querySelectorAll('.opt-btn').forEach((btn, i) => {
+    btn.classList.toggle('tp-highlight', i === idx);
+  });
+  // パッド上のゾーン番号も強調
+  $('tp-surface').querySelectorAll('.tp-zone').forEach((z, i) => {
+    z.classList.toggle('on', i === idx);
+  });
+  // ハプティクス
+  if (idx >= 0 && navigator.vibrate) navigator.vibrate(8);
+}
+
+function tpClearHighlight() {
+  tpCurrentZone = -1;
+  $('opts').querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('tp-highlight'));
+  $('tp-surface').querySelectorAll('.tp-zone').forEach(z => z.classList.remove('on'));
+}
+
+function tpGetZoneFromTouch(touch) {
+  const surface = $('tp-surface');
+  const rect = surface.getBoundingClientRect();
+  const rawY = touch.clientY - rect.top;
+  // 感度1.5倍：中心からの距離を1.5倍に拡大
+  const center = rect.height / 2;
+  const y = center + (rawY - center) * 1.5;
+  const clamped = Math.max(0, Math.min(rect.height, y));
+  const zoneHeight = rect.height / 4;
+  return Math.min(3, Math.floor(clamped / zoneHeight));
+}
+
+function tpIsInsideSurface(e) {
+  const rect = $('tp-surface').getBoundingClientRect();
+  return e.clientX >= rect.left && e.clientX <= rect.right &&
+         e.clientY >= rect.top  && e.clientY <= rect.bottom;
+}
+
+$('tp-surface').addEventListener('pointerdown', e => {
+  if (state.answered || tpLocked) return;
+  e.preventDefault();
+  $('tp-surface').setPointerCapture(e.pointerId);
+  $('tp-surface').classList.add('touching');
+  $('tp-hint').classList.add('hidden');
+  const zone = tpGetZoneFromTouch(e);
+  tpHighlightZone(zone);
+});
+
+$('tp-surface').addEventListener('pointermove', e => {
+  if (state.answered || tpLocked) return;
+  if (!$('tp-surface').classList.contains('touching')) return;
+  e.preventDefault();
+  if (!tpIsInsideSurface(e)) {
+    tpClearHighlight();
+    return;
+  }
+  const zone = tpGetZoneFromTouch(e);
+  tpHighlightZone(zone);
+});
+
+$('tp-surface').addEventListener('pointerup', e => {
+  if (!$('tp-surface').classList.contains('touching')) return;
+  $('tp-surface').classList.remove('touching');
+  const inside = tpIsInsideSurface(e);
+  const zone = tpCurrentZone;
+  tpClearHighlight();
+  if (inside && zone >= 0 && !state.answered) {
+    selectOption(zone);
+  }
+});
+
+$('tp-surface').addEventListener('pointercancel', () => {
+  $('tp-surface').classList.remove('touching');
+  tpClearHighlight();
 });
 
 /* ── Prev (前の問題へ。間違えた記録は保持したまま) ── */
