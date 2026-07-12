@@ -223,6 +223,17 @@
     .opt-btn.correct .opt-num { background: var(--ok); color: #fff; }
     .opt-btn.wrong { border-color: var(--ng); background: var(--ng-bg); }
     .opt-btn.wrong .opt-num { background: var(--ng); color: #fff; }
+    /* 回答した選択肢：もう一度タップで次へ */
+    .opt-btn.tap-next { position: relative; cursor: pointer; }
+    .opt-btn.tap-next::after {
+      content: 'もう一度タップで次へ →';
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 11px; font-weight: 700; color: var(--mu);
+      background: var(--card); padding: 3px 8px; border-radius: 20px;
+      border: 1px solid var(--br); animation: fadeUp .3s ease;
+    }
+    .opt-btn.correct.tap-next::after { color: var(--ok); border-color: var(--ok); }
+    .opt-btn.wrong.tap-next::after   { color: var(--ng); border-color: var(--ng); }
 
     /* Feedback */
     .fb-card {
@@ -782,7 +793,7 @@
 </div>
 
 
-<script src="js/data.js?v=10"></script>
-<script src="js/app.js?v=21"></script>
+<script src="js/data.js?v=11"></script>
+<script src="js/app.js?v=22"></script>
 </body>
 </html>

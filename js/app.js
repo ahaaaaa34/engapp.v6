@@ -283,10 +283,15 @@ function renderChoiceQ(q) {
 }
 
 function selectOption(chosen) {
-  if (state.answered) return;
+  const q = state.queue[state.idx];
+  if (state.answered) {
+    // 回答後：選んだ選択肢をもう一度タップ→次の問題へ（FRAME / Ex.A）
+    const rec = state.records[state.idx];
+    if (rec && rec.kind === 'choice' && chosen === rec.chosen) advanceNext();
+    return;
+  }
   state.answered = true;
 
-  const q    = state.queue[state.idx];
   const isOK = chosen === q.answer;
   const rec  = recordResult(q, 'choice', isOK, { chosen });
   replayChoice(q, rec);
@@ -626,9 +631,11 @@ const NUMS = ['①', '②', '③', '④'];
 
 function replayChoice(q, rec) {
   $('opts').querySelectorAll('.opt-btn').forEach((btn, i) => {
-    btn.disabled = true;
     if (i === q.answer)        btn.classList.add('correct');
     else if (i === rec.chosen) btn.classList.add('wrong');
+    // 選んだ選択肢だけ有効のまま残し、もう一度タップで次へ進めるようにする
+    if (i === rec.chosen) { btn.disabled = false; btn.classList.add('tap-next'); }
+    else                    btn.disabled = true;
   });
   showFeedback({
     isOK:     rec.isOK,
@@ -749,7 +756,7 @@ function saveProgress() {
 }
 
 /* ── Next ── */
-$('next-btn').addEventListener('click', () => {
+function advanceNext() {
   state.idx++;
   if (state.idx >= state.queue.length) {
     showResults();
@@ -757,7 +764,9 @@ $('next-btn').addEventListener('click', () => {
     renderQ();
     window.scrollTo(0, 0);
   }
-});
+}
+
+$('next-btn').addEventListener('click', advanceNext);
 
 /* ── Prev (前の問題へ。間違えた記録は保持したまま) ── */
 $('prev-q-btn').addEventListener('click', () => {
