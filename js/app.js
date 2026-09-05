@@ -48,22 +48,8 @@ function assembleSentence(q) {
 
 /* ── Topic tagging ── */
 (function tagTopics() {
-  // STEP04(both) / STEP05(infin) / STEP06(gerund) boundaries per ID prefix
-  const bounds = {
-    f: { s04max: 31, s06min: 42 }, // f026-f031=both, f032-f041=infin, f042-f050=gerund
-    a: { s04max: 24, s06min: 44 }, // a01-a24=both,  a25-a43=infin,   a44-a57=gerund
-    b: { s04max:  5, s06min:  9 }, // b01-b05=both,  b06-b08=infin,   b09-b11=gerund
-    c: { s04max:  5, s06min: 14 }, // c01-c05=both,  c06-c13=infin,   c14-c23=gerund
-  };
-  Object.values(QUIZ_DATA).flat().forEach(q => {
-    const c = q.id[0];
-    const n = parseInt(q.id.slice(1), 10);
-    const r = bounds[c];
-    if (!r) { q.topic = 'both'; return; }
-    if (n <= r.s04max) q.topic = 'both';
-    else if (n < r.s06min) q.topic = 'infin';
-    else q.topic = 'gerund';
-  });
+  // STEP12 は単元が「代名詞」1つなので、全問を 'both' として扱う
+  Object.values(QUIZ_DATA).flat().forEach(q => { q.topic = 'both'; });
 })();
 
 function selectedTopics() {
@@ -79,7 +65,7 @@ function filteredQuestions(key) {
 
 /* ── 問題数を動的にセット ── */
 const SEC_LABELS = {
-  frames: '不定詞・動名詞の基本パターン',
+  frames: '代名詞の基本パターン',
   exA:    '最も適切な語句を選ぶ',
   exB:    '誤りを含む番号を選ぶ',
   exC:    '語句を並べかえる（確認問題）'
