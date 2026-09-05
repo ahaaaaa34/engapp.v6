@@ -1,4 +1,4 @@
-// app.js — STEP 04・05・06 不定詞と動名詞マスター
+// app.js — STEP 12 代名詞
 
 const state = {
   queue: [],
@@ -53,7 +53,10 @@ function assembleSentence(q) {
 })();
 
 function selectedTopics() {
-  return [...document.querySelectorAll('.topic-btn.on')].map(b => b.dataset.topic);
+  const btns = [...document.querySelectorAll('.topic-btn')];
+  if (!btns.length) return ['both'];           // 単元セレクタ無し＝全問対象
+  const on = btns.filter(b => b.classList.contains('on'));
+  return (on.length ? on : btns).map(b => b.dataset.topic);
 }
 
 /* ── 出題形式ごとの問題配列 ── */
@@ -199,6 +202,7 @@ $('retry-btn').addEventListener('click', () => {
 
 $('retry-wrong-btn').addEventListener('click', () => {
   const review = new Set([...state.wrongIds, ...state.marked]);
+  state.queue.forEach((q, i) => { if (!state.records[i]) review.add(q.id); });
   const wrongQ = state.fullQueue.filter(q => review.has(q.id));
   if (!wrongQ.length) return;
   state.queue = wrongQ;
@@ -249,7 +253,9 @@ function renderQ() {
 
   const isChoice = q.type !== 'exB' && q.type !== 'exC' && q.type !== 'fill';
   $('ans-pad').style.display = isChoice ? '' : 'none';
-  document.querySelector('.quiz-body').classList.toggle('pad-on', isChoice);
+  const qBody = document.querySelector('.quiz-body');
+  qBody.classList.toggle('pad-on', isChoice);
+  qBody.classList.remove('bar-on');
   $('ans-pad').classList.remove('active');
   tpLocked = false;
   if (isChoice) {
@@ -641,6 +647,9 @@ function replayChoice(q, rec) {
   });
   // トラックパッドを隠して固定の「次の問題」ボタンを表示
   $('ans-pad').style.display = 'none';
+  const qBody = document.querySelector('.quiz-body');
+  qBody.classList.remove('pad-on');
+  qBody.classList.add('bar-on');
   tpLocked = true;
   showFeedback({
     isOK:     rec.isOK,
@@ -786,7 +795,7 @@ function showFeedback({ isOK, headText, fixText, correctedText, traText, expText
   if (traText)       { tra.textContent = traText; tra.style.display = 'block'; }
   else                 tra.style.display = 'none';
 
-  exp.textContent = expText;
+  exp.textContent = expText || '';
   $('next-btn').className = 'next-btn show';
 
   // 復習マークボタン（回答後に表示、マーク済みなら点灯）
@@ -1041,8 +1050,19 @@ document.addEventListener('keydown', e => {
 
 /* ── Results ── */
 function showResults() {
+  // 出題した問題すべてを母数にする（未回答は不正解あつかい）
+  const stats = {};
+  const unanswered = [];
+  state.queue.forEach((q, i) => {
+    const s = stats[q.section] || (stats[q.section] = { c: 0, t: 0 });
+    s.t++;
+    const rec = state.records[i];
+    if (rec && rec.isOK) s.c++;
+    if (!rec) unanswered.push(q.id);
+  });
+
   let totalC = 0, totalT = 0;
-  Object.values(state.scores).forEach(s => { totalC += s.c; totalT += s.t; });
+  Object.values(stats).forEach(s => { totalC += s.c; totalT += s.t; });
 
   const pct = totalT ? Math.round(totalC / totalT * 100) : 0;
   $('score-big').textContent = `${totalC}/${totalT}`;
@@ -1062,7 +1082,7 @@ function showResults() {
   const container = $('sec-results');
   container.innerHTML = '';
   ['frames', 'exA', 'exB', 'exC'].forEach(key => {
-    const s = state.scores[key];
+    const s = stats[key];
     if (!s || s.t === 0) return;
     const p    = Math.round(s.c / s.t * 100);
     const card = document.createElement('div');
@@ -1075,7 +1095,7 @@ function showResults() {
   });
 
   const wrongBtn = $('retry-wrong-btn');
-  const reviewCount = new Set([...state.wrongIds, ...state.marked]).size;
+  const reviewCount = new Set([...state.wrongIds, ...state.marked, ...unanswered]).size;
   if (reviewCount > 0) {
     wrongBtn.textContent   = `✗ 間違えた ${reviewCount} 問だけもう一度`;
     wrongBtn.style.display = '';
@@ -1131,6 +1151,13 @@ $('eigo-back').addEventListener('click', () => showScreen('screen-home'));
 function renderEigo() {
   const body = $('eigo-body');
   if (body.children.length > 0) return;
+  if (!EIGO_SENTENCES.length) {
+    const note = document.createElement('div');
+    note.className = 'empty-note';
+    note.textContent = '英コミュの長文データはまだ登録されていません。';
+    body.appendChild(note);
+    return;
+  }
   EIGO_SENTENCES.forEach((s, i) => {
     const card = document.createElement('div');
     card.className = 'sen-card';

@@ -1,4 +1,4 @@
-const CACHE = 'grammar-040506-v11';
+const CACHE = 'grammar-step12-v1';
 const ASSETS = ['./', './index.html', './js/data.js', './js/app.js', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
@@ -14,8 +14,19 @@ self.addEventListener('activate', e => {
   );
 });
 
+// ネットワーク優先（更新が即反映される）。オフライン時のみキャッシュを返す。
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(res => {
+        if (res && res.ok && new URL(e.request.url).origin === location.origin) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request, { ignoreSearch: true })
+        .then(cached => cached || caches.match('./index.html')))
   );
 });
