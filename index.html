@@ -25,7 +25,7 @@
       --bg: #f6f6f4; --card: #fff;
       --tx: #1a1a1a; --mu: #777; --br: #ddd;
       --r: 6px;
-      --tp-h: clamp(160px, 34vh, 300px);
+      --tp-h: clamp(100px, 17vh, 150px);
     }
     html, body { min-height: 100%; background: var(--bg); color: var(--tx); line-height: 1.7; font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif; }
     .screen { display: none; min-height: 100vh; min-height: 100dvh; }
@@ -245,8 +245,9 @@
       overflow: hidden;
     }
     .tp-zone {
-      flex: 1; display: flex; align-items: center; justify-content: center;
-      font-size: 26px; font-weight: 700;
+      flex: 1 1 0; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px; line-height: 1; font-weight: 700;
       color: rgba(0,0,0,.13); /* 薄い番号 */
       pointer-events: none;
       transition: background .1s, color .1s;
@@ -269,7 +270,7 @@
     /* 回答後（下部固定バー表示中）の余白 */
     .quiz-body.bar-on { padding-bottom: 108px; }
     /* 画面が低いときはトラックパッドを出さない（選択肢が隠れるため） */
-    @media (max-height: 700px) {
+    @media (max-height: 640px) {
       #ans-pad { display: none !important; }
       .quiz-body.pad-on { padding-bottom: 48px; }
     }
@@ -909,6 +910,6 @@
 
 
 <script src="js/data.js?v=13"></script>
-<script src="js/app.js?v=29"></script>
+<script src="js/app.js?v=31"></script>
 </body>
 </html>
