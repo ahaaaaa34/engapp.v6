@@ -156,6 +156,46 @@ $('home-retry-wrong-btn').addEventListener('click', () => {
   } catch (_) {}
 });
 
+/* ── 丸をつけた問題だけを出題 ── */
+function markedQuestions() {
+  if (typeof MARKED_SET === 'undefined' || !MARKED_SET.ids) return [];
+  const all = Object.values(QUIZ_DATA).flat();
+  return MARKED_SET.ids.map(id => all.find(q => q.id === id)).filter(Boolean);
+}
+
+function startQuiz(list) {
+  if (!list.length) return;
+  state.queue      = list;
+  state.fullQueue  = list;
+  state.idx        = 0;
+  state.answered   = false;
+  state.records    = [];
+  state.wrongIds   = [];
+  state.correctIds = [];
+  state.marked     = [];
+  state.scores     = {};
+  list.forEach(item => {
+    if (!state.scores[item.section])
+      state.scores[item.section] = { c: 0, t: 0, name: item.sectionName };
+  });
+  showScreen('screen-quiz');
+  renderQ();
+}
+
+(function initMarkedCard() {
+  const btn = $('marked-btn');
+  if (!btn) return;
+  const qs = markedQuestions();
+  if (!qs.length) { btn.style.display = 'none'; return; }
+  if (typeof MARKED_SET !== 'undefined') {
+    const nameEl = $('marked-name');
+    const subEl  = $('marked-sub');
+    if (nameEl && MARKED_SET.name) nameEl.textContent = MARKED_SET.name;
+    if (subEl)  subEl.textContent  = `${qs.length}問 · ${MARKED_SET.sub || '要復習の問題'}`;
+  }
+  btn.addEventListener('click', () => startQuiz(qs));
+})();
+
 /* ── Start ── */
 $('start-btn').addEventListener('click', () => {
   const q = [];

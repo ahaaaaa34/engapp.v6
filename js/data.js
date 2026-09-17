@@ -268,3 +268,15 @@ const QUIZ_DATA = {
 };
 
 const EIGO_SENTENCES = [];
+
+/* ── 問題集で丸をつけた12問（番号は問題集どおり） ── */
+const MARKED_SET = {
+  name: '丸をつけた12問',
+  sub: '問題集でチェックした要復習の問題',
+  ids: [
+    'f099',                                   // FRAME 099  〈金城学院大〉
+    'a03', 'a05', 'a09', 'a13', 'a19', 'a21', 'a23',  // Exercise A
+    'b05', 'b06',                             // Exercise B（問題集 01 / 03）
+    'c03', 'c05'                              // Exercise C
+  ]
+};
