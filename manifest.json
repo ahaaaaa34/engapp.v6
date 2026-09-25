@@ -1,7 +1,7 @@
 {
-  "name": "英文法マスター STEP 12 代名詞",
-  "short_name": "代名詞",
-  "description": "STEP 12 代名詞 — 大学入試英文法問題演習PWA",
+  "name": "英文法マスター STEP 08 動詞の語法",
+  "short_name": "動詞の語法",
+  "description": "STEP 08 動詞の語法 — 大学入試英文法問題演習PWA",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait-primary",

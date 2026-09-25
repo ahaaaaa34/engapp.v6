@@ -1,4 +1,4 @@
-// app.js — STEP 12 代名詞
+// app.js — STEP 08 動詞の語法
 
 const state = {
   queue: [],
@@ -48,7 +48,7 @@ function assembleSentence(q) {
 
 /* ── Topic tagging ── */
 (function tagTopics() {
-  // STEP12 は単元が「代名詞」1つなので、全問を 'both' として扱う
+  // STEP08 は単元が「動詞の語法」1つなので、全問を 'both' として扱う
   Object.values(QUIZ_DATA).flat().forEach(q => { q.topic = 'both'; });
 })();
 
@@ -68,7 +68,7 @@ function filteredQuestions(key) {
 
 /* ── 問題数を動的にセット ── */
 const SEC_LABELS = {
-  frames: '代名詞の基本パターン',
+  frames: '動詞の語法の基本パターン',
   exA:    '最も適切な語句を選ぶ',
   exB:    '誤りを含む番号を選ぶ',
   exC:    '語句を並べかえる（確認問題）'
@@ -118,7 +118,7 @@ document.querySelectorAll('.sec-card').forEach(card => {
 /* ── Previous score ── */
 (function loadPrev() {
   try {
-    const d = JSON.parse(localStorage.getItem('grammar-0203-score'));
+    const d = JSON.parse(localStorage.getItem('grammar-step08-score'));
     if (!d) return;
     $('prev-card').style.display = '';
     $('prev-val').textContent = `${d.c}/${d.t} (${d.pct}%)`;
@@ -132,7 +132,7 @@ document.querySelectorAll('.sec-card').forEach(card => {
 
 $('home-retry-wrong-btn').addEventListener('click', () => {
   try {
-    const d = JSON.parse(localStorage.getItem('grammar-0203-score'));
+    const d = JSON.parse(localStorage.getItem('grammar-step08-score'));
     if (!d || !d.wrongIds || !d.wrongIds.length) return;
     const allQ = Object.values(QUIZ_DATA).flat();
     const wrongQ = allQ.filter(q => d.wrongIds.includes(q.id));
@@ -847,7 +847,7 @@ function showFeedback({ isOK, headText, fixText, correctedText, traText, expText
 
 function loadStoredWrongIds() {
   try {
-    const d = JSON.parse(localStorage.getItem('grammar-0203-score'));
+    const d = JSON.parse(localStorage.getItem('grammar-step08-score'));
     return (d && Array.isArray(d.wrongIds)) ? d.wrongIds : [];
   } catch (_) { return []; }
 }
@@ -866,7 +866,7 @@ function saveProgress() {
     state.marked.forEach(id => set.add(id));
     const cumWrong = [...set];
 
-    localStorage.setItem('grammar-0203-score', JSON.stringify({ c: totalC, t: totalT, pct, wrongIds: cumWrong }));
+    localStorage.setItem('grammar-step08-score', JSON.stringify({ c: totalC, t: totalT, pct, wrongIds: cumWrong }));
     $('prev-card').style.display = '';
     $('prev-val').textContent = `${totalC}/${totalT} (${pct}%)`;
     const btn = $('home-retry-wrong-btn');
