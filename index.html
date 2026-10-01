@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#1a1a1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="動詞の語法マスター">
-  <title>英文法マスター STEP 08</title>
+  <meta name="apple-mobile-web-app-title" content="英文法マスター">
+  <title>英文法マスター STEP 08・13</title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +48,18 @@
       padding: 14px 16px; border-radius: var(--r);
       background: #1a1a1a; color: #fff; margin-bottom: 4px; user-select: none;
     }
+    .unit-card.topic-btn {
+      cursor: pointer; margin-bottom: 8px; justify-content: flex-start;
+      background: var(--card); color: var(--tx); border: 2px solid var(--br);
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .unit-card.topic-btn .unit-name { flex: 1; }
+    .unit-card.topic-btn .unit-sub { color: var(--mu); }
+    .unit-card.topic-btn.on { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .unit-card.topic-btn.on .unit-sub { color: rgba(255,255,255,.75); }
+    .unit-chk { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--br); flex-shrink: 0; position: relative; }
+    .unit-card.topic-btn.on .unit-chk { border-color: #fff; background: #fff; }
+    .unit-card.topic-btn.on .unit-chk::after { content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid #1a1a1a; border-width: 0 2px 2px 0; transform: rotate(45deg); }
     .unit-name { font-size: 15px; font-weight: 700; }
     .unit-sub  { font-size: 12px; font-weight: 500; color: rgba(255,255,255,.75); }
     .sec-card {
@@ -696,7 +708,7 @@
         <span class="menu-icon">📚</span>
         <div>
           <div class="menu-item-title">文法</div>
-          <div class="menu-item-sub">動詞の語法 STEP 08</div>
+          <div class="menu-item-sub">STEP 08・13</div>
         </div>
       </button>
       <button class="menu-item" id="menu-eigo">
@@ -725,13 +737,19 @@
       <span></span><span></span><span></span>
     </button>
     <h1>英文法マスター</h1>
-    <p>STEP 08: 動詞の語法 — 大学入試対策</p>
+    <p>STEP 08 動詞の語法 ／ STEP 13 形容詞と副詞の語法</p>
   </div>
   <div class="home-body">
-    <p class="sec-lbl">出題単元</p>
-    <div class="unit-card">
-      <span class="unit-name">動詞の語法</span>
-      <span class="unit-sub" id="topic-cnt-both">-問</span>
+    <p class="sec-lbl">出題単元（複数選べます）</p>
+    <div class="unit-card topic-btn" data-topic="step08" role="button" aria-pressed="false">
+      <span class="unit-chk"></span>
+      <span class="unit-name">STEP 08　動詞の語法</span>
+      <span class="unit-sub" id="topic-cnt-step08">-問</span>
+    </div>
+    <div class="unit-card topic-btn" data-topic="step13" role="button" aria-pressed="false">
+      <span class="unit-chk"></span>
+      <span class="unit-name">STEP 13　形容詞と副詞の語法</span>
+      <span class="unit-sub" id="topic-cnt-step13">-問</span>
     </div>
 
     <p class="sec-lbl mt">チェックした問題</p>
@@ -748,7 +766,7 @@
 
     <div class="sec-card on" data-sec="frames">
       <div class="chk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="sec-info"><div class="sec-name">FRAME（例題）</div><div class="sec-sub" id="sub-frames">- 問 · 動詞の語法の基本パターン</div></div>
+      <div class="sec-info"><div class="sec-name">FRAME（例題）</div><div class="sec-sub" id="sub-frames">- 問 · 基本パターン</div></div>
       <span class="sec-tag tag-f">基礎</span>
     </div>
 
@@ -953,9 +971,9 @@
 </div>
 
 
-<script src="js/data.js?v=14"></script>
-<script src="js/dict.js?v=1"></script>
-<script src="js/app.js?v=31"></script>
+<script src="js/data.js?v=15"></script>
+<script src="js/dict.js?v=2"></script>
+<script src="js/app.js?v=32"></script>
 <script src="js/lookup.js?v=1"></script>
 </body>
 </html>

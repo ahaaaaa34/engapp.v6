@@ -1,7 +1,7 @@
 // lookup.js — 問題中の英単語を長押しすると日本語の意味をポップアップ表示する
 (function () {
   const ROOT_IDS = ['q-text', 'opts', 'exc-ctx', 'pool-area', 'exb-zone', 'fb-card', 'fill-zone'];
-  const WORD_RE  = /[A-Za-z][A-Za-z'’]*(?:-[A-Za-z]+)*/g;
+  const WORD_RE  = /[A-Za-z]+(?:['’][A-Za-z]+)*(?:-[A-Za-z]+)*/g;   // don't / o'clock / T-shirt（前後の引用符は含めない）
   const SKIP_SEL = '.w, input, textarea, script, style, .wchip-ans, .drag-ghost, [data-nolookup]';
   const HOLD_MS  = 450;
 

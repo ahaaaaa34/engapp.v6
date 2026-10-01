@@ -1,4 +1,4 @@
-// app.js — STEP 08 動詞の語法
+// app.js — 英文法（STEP 08 動詞の語法 ／ STEP 13 形容詞と副詞の語法）
 
 const state = {
   queue: [],
@@ -47,16 +47,14 @@ function assembleSentence(q) {
 }
 
 /* ── Topic tagging ── */
+// 単元（STEP）ごとに topic を付ける：step: 8 → 'step08'
 (function tagTopics() {
-  // STEP08 は単元が「動詞の語法」1つなので、全問を 'both' として扱う
-  Object.values(QUIZ_DATA).flat().forEach(q => { q.topic = 'both'; });
+  Object.values(QUIZ_DATA).flat().forEach(q => { q.topic = 'step' + String(q.step).padStart(2, '0'); });
 })();
 
 function selectedTopics() {
   const btns = [...document.querySelectorAll('.topic-btn')];
-  if (!btns.length) return ['both'];           // 単元セレクタ無し＝全問対象
-  const on = btns.filter(b => b.classList.contains('on'));
-  return (on.length ? on : btns).map(b => b.dataset.topic);
+  return btns.filter(b => b.classList.contains('on')).map(b => b.dataset.topic);
 }
 
 /* ── 出題形式ごとの問題配列 ── */
@@ -68,7 +66,7 @@ function filteredQuestions(key) {
 
 /* ── 問題数を動的にセット ── */
 const SEC_LABELS = {
-  frames: '動詞の語法の基本パターン',
+  frames: '基本パターン',
   exA:    '最も適切な語句を選ぶ',
   exB:    '誤りを含む番号を選ぶ',
   exC:    '語句を並べかえる（確認問題）'
@@ -84,12 +82,13 @@ function updateCounts() {
     if (elem) elem.textContent = n > 0 ? `${n}問 · ${SEC_LABELS[key]}` : `（該当なし）`;
   });
 
-  // トピック別問題数バッジ
-  const cnt = { both: 0, infin: 0, gerund: 0 };
+  // 単元別問題数バッジ
+  const cnt = {};
   Object.values(QUIZ_DATA).flat().forEach(q => { cnt[q.topic] = (cnt[q.topic] || 0) + 1; });
-  [['topic-cnt-both', 'both'], ['topic-cnt-infin', 'infin'], ['topic-cnt-gerund', 'gerund']].forEach(([id, key]) => {
-    const el = $(id);
-    if (el) el.textContent = `${cnt[key]}問`;
+  document.querySelectorAll('.topic-btn').forEach(b => {
+    const el = $('topic-cnt-' + b.dataset.topic);
+    if (el) el.textContent = `${cnt[b.dataset.topic] || 0}問`;
+    b.setAttribute('aria-pressed', b.classList.contains('on'));
   });
 
   // スタートボタン
@@ -97,12 +96,24 @@ function updateCounts() {
   const total  = ['frames','exA','exB','exC'].reduce((s,k)=> s + (document.querySelector(`.sec-card.on[data-sec="${k}"]`) ? filteredQuestions(k).length : 0), 0);
   $('start-btn').disabled = !(anyTopic && anySec && total > 0);
 }
+
+/* ── Topic toggle（選んだ単元は次回も覚えておく。最後の1つは外せない） ── */
+const TOPIC_KEY = 'grammar-topics';
+(function restoreTopics() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(TOPIC_KEY)); } catch (_) {}
+  const btns = [...document.querySelectorAll('.topic-btn')];
+  const valid = Array.isArray(saved) ? saved.filter(t => btns.some(b => b.dataset.topic === t)) : [];
+  const on = valid.length ? valid : [btns[btns.length - 1].dataset.topic];   // 初期値：いちばん新しい単元
+  btns.forEach(b => b.classList.toggle('on', on.includes(b.dataset.topic)));
+})();
 updateCounts();
 
-/* ── Topic toggle ── */
 document.querySelectorAll('.topic-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    if (btn.classList.contains('on') && selectedTopics().length === 1) return;
     btn.classList.toggle('on');
+    try { localStorage.setItem(TOPIC_KEY, JSON.stringify(selectedTopics())); } catch (_) {}
     updateCounts();
   });
 });
@@ -186,7 +197,12 @@ function startQuiz(list) {
   const btn = $('marked-btn');
   if (!btn) return;
   const qs = markedQuestions();
-  if (!qs.length) { btn.style.display = 'none'; return; }
+  if (!qs.length) {
+    btn.style.display = 'none';
+    const lbl = btn.previousElementSibling;           // 見出し「チェックした問題」も隠す
+    if (lbl && lbl.classList.contains('sec-lbl')) lbl.style.display = 'none';
+    return;
+  }
   if (typeof MARKED_SET !== 'undefined') {
     const nameEl = $('marked-name');
     const subEl  = $('marked-sub');
@@ -272,7 +288,7 @@ function renderQ() {
   $('prog-fill').style.width = `${(cur / total) * 100}%`;
 
   const tag = $('q-tag');
-  tag.textContent = q.label;
+  tag.textContent = `STEP ${String(q.step).padStart(2, '0')}　${q.label}`;
   tag.className   = 'q-tag ' + q.tagClass;
   $('q-src').textContent = q.source ? `〈${q.source}〉` : '';
   $('q-important').style.display = q.important ? 'inline-block' : 'none';
