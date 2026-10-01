@@ -12,6 +12,8 @@
 
 4. 手順1で確認した形式・IDの続きで該当セクションの末尾に追加する。
 
-5. `git add data.js && git commit -m "grammar: add questions"`
+5. `js/dict.js` の `WORD_DICT` に、追加した問題（問題文・選択肢・語群・解答・解説）に出てくる英単語のうち未登録のものを日本語の意味つきで追加する（キーは小文字、活用形は「原形の◯◯形」を添える）。熟語は `PHRASE_DICT` に追加。英単語を長押しすると意味が出る機能で使う。
 
-6. 何問追加したか報告する。
+6. `git add js/data.js js/dict.js && git commit -m "grammar: add questions"`
+
+7. 何問追加したか報告する。

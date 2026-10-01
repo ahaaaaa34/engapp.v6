@@ -74,6 +74,22 @@
     .tag-b { background: #ececec; color: #333; border: 1px solid #ccc; }
     .tag-c { background: #ececec; color: #333; border: 1px solid #ccc; }
 
+    /* ── 長押しで単語の意味 ── */
+    .w { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; border-radius: 3px; transition: background .12s; }
+    .w.w-on { background: rgba(26,26,26,.12); }
+    #wpop {
+      position: fixed; z-index: 1000; display: none;
+      max-width: min(320px, calc(100vw - 16px));
+      background: #1a1a1a; color: #fff; border-radius: 8px;
+      padding: 10px 13px; box-shadow: 0 6px 20px rgba(0,0,0,.28);
+      font-family: inherit; line-height: 1.55; pointer-events: none;
+    }
+    #wpop.show { display: block; }
+    #wpop .wp-word   { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+    #wpop .wp-mean   { font-size: 14px; }
+    #wpop .wp-phrase { font-size: 13px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.2); }
+    .lookup-hint { font-size: 12px; color: var(--mu); text-align: center; margin-top: 14px; }
+
     /* ── 丸をつけた問題セット ── */
     .marked-card {
       display: flex; align-items: center; gap: 14px;
@@ -755,6 +771,7 @@
     </div>
 
     <button class="start-btn" id="start-btn">スタート →</button>
+    <p class="lookup-hint">英単語を長押しすると日本語の意味が出ます</p>
     <button class="btn-wrong" id="home-retry-wrong-btn" style="display:none"></button>
     <div id="prev-card" class="prev-card" style="display:none">
       <span class="lbl">前回のスコア</span>
@@ -936,7 +953,9 @@
 </div>
 
 
-<script src="js/data.js?v=13"></script>
+<script src="js/data.js?v=14"></script>
+<script src="js/dict.js?v=1"></script>
 <script src="js/app.js?v=31"></script>
+<script src="js/lookup.js?v=1"></script>
 </body>
 </html>

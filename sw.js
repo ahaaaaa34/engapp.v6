@@ -1,5 +1,5 @@
-const CACHE = 'grammar-step08-v1';
-const ASSETS = ['./', './index.html', './js/data.js', './js/app.js', './manifest.json', './icon.svg'];
+const CACHE = 'grammar-step08-v2';
+const ASSETS = ['./', './index.html', './js/data.js', './js/app.js', './js/dict.js', './js/lookup.js', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
