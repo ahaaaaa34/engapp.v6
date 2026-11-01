@@ -1,4 +1,4 @@
-// app.js — 英文法（STEP 08 動詞の語法 ／ STEP 13 形容詞と副詞の語法）
+// app.js — 高2 2学期第2回テスト（UNLOCK 読解 ＋ POWER FRAME）
 
 const state = {
   queue: [],
@@ -46,90 +46,44 @@ function assembleSentence(q) {
   return s.trim();
 }
 
-/* ── Topic tagging ── */
-// 単元（STEP）ごとに topic を付ける：step: 8 → 'step08'
-(function tagTopics() {
-  Object.values(QUIZ_DATA).flat().forEach(q => { q.topic = 'step' + String(q.step).padStart(2, '0'); });
+/* ── 大問（SECTIONS）ごとのカードを生成 ── */
+const SEC_KEYS = SECTIONS.map(x => x.key);
+const SCORE_KEY = 'test-k2-2t-2-score';
+
+function filteredQuestions(key) { return QUIZ_DATA[key] || []; }
+
+(function buildSectionCards() {
+  const list = $('sec-list');
+  const CHK = '<div class="chk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+  SECTIONS.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'sec-card on';
+    card.dataset.sec = sec.key;
+    card.innerHTML = `${CHK}<div class="sec-info"><div class="sec-name">${sec.name}</div><div class="sec-sub" id="sub-${sec.key}"></div></div><span class="sec-tag tag-a">${sec.tag}</span>`;
+    card.addEventListener('click', () => { card.classList.toggle('on'); updateCounts(); });
+    list.appendChild(card);
+  });
+  const total = SEC_KEYS.reduce((n, k) => n + filteredQuestions(k).length, 0);
+  $('test-title').textContent = TEST_INFO.title;
+  $('test-sub').textContent   = TEST_INFO.sub;
+  $('test-cnt').textContent   = `${total}問`;
 })();
 
-function selectedTopics() {
-  const btns = [...document.querySelectorAll('.topic-btn')];
-  return btns.filter(b => b.classList.contains('on')).map(b => b.dataset.topic);
-}
-
-/* ── 出題形式ごとの問題配列 ── */
-function filteredQuestions(key) {
-  const topics = selectedTopics();
-  if (!topics.length) return [];
-  return (QUIZ_DATA[key] || []).filter(q => topics.includes(q.topic));
-}
-
-/* ── 問題数を動的にセット ── */
-const SEC_LABELS = {
-  frames: '基本パターン',
-  exA:    '最も適切な語句を選ぶ',
-  exB:    '誤りを含む番号を選ぶ',
-  exC:    '語句を並べかえる（確認問題）'
-};
 function updateCounts() {
-  const topics = selectedTopics();
-  const anyTopic = topics.length > 0;
-
-  // セクションごとの問題数
-  ['frames', 'exA', 'exB', 'exC'].forEach(key => {
-    const n = filteredQuestions(key).length;
-    const elem = document.getElementById('sub-' + key);
-    if (elem) elem.textContent = n > 0 ? `${n}問 · ${SEC_LABELS[key]}` : `（該当なし）`;
+  SECTIONS.forEach(sec => {
+    const n = filteredQuestions(sec.key).length;
+    const el = $('sub-' + sec.key);
+    if (el) el.textContent = `${n}問 · ${sec.sub}（${sec.points}）`;
   });
-
-  // 単元別問題数バッジ
-  const cnt = {};
-  Object.values(QUIZ_DATA).flat().forEach(q => { cnt[q.topic] = (cnt[q.topic] || 0) + 1; });
-  document.querySelectorAll('.topic-btn').forEach(b => {
-    const el = $('topic-cnt-' + b.dataset.topic);
-    if (el) el.textContent = `${cnt[b.dataset.topic] || 0}問`;
-    b.setAttribute('aria-pressed', b.classList.contains('on'));
-  });
-
-  // スタートボタン
-  const anySec = document.querySelector('.sec-card.on');
-  const total  = ['frames','exA','exB','exC'].reduce((s,k)=> s + (document.querySelector(`.sec-card.on[data-sec="${k}"]`) ? filteredQuestions(k).length : 0), 0);
-  $('start-btn').disabled = !(anyTopic && anySec && total > 0);
+  const total = SEC_KEYS.reduce((n, k) => n + (document.querySelector(`.sec-card.on[data-sec="${k}"]`) ? filteredQuestions(k).length : 0), 0);
+  $('start-btn').disabled = total === 0;
 }
-
-/* ── Topic toggle（選んだ単元は次回も覚えておく。最後の1つは外せない） ── */
-const TOPIC_KEY = 'grammar-topics';
-(function restoreTopics() {
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem(TOPIC_KEY)); } catch (_) {}
-  const btns = [...document.querySelectorAll('.topic-btn')];
-  const valid = Array.isArray(saved) ? saved.filter(t => btns.some(b => b.dataset.topic === t)) : [];
-  const on = valid.length ? valid : [btns[btns.length - 1].dataset.topic];   // 初期値：いちばん新しい単元
-  btns.forEach(b => b.classList.toggle('on', on.includes(b.dataset.topic)));
-})();
 updateCounts();
-
-document.querySelectorAll('.topic-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.classList.contains('on') && selectedTopics().length === 1) return;
-    btn.classList.toggle('on');
-    try { localStorage.setItem(TOPIC_KEY, JSON.stringify(selectedTopics())); } catch (_) {}
-    updateCounts();
-  });
-});
-
-/* ── Section toggle ── */
-document.querySelectorAll('.sec-card').forEach(card => {
-  card.addEventListener('click', () => {
-    card.classList.toggle('on');
-    updateCounts();
-  });
-});
 
 /* ── Previous score ── */
 (function loadPrev() {
   try {
-    const d = JSON.parse(localStorage.getItem('grammar-step08-score'));
+    const d = JSON.parse(localStorage.getItem(SCORE_KEY));
     if (!d) return;
     $('prev-card').style.display = '';
     $('prev-val').textContent = `${d.c}/${d.t} (${d.pct}%)`;
@@ -143,7 +97,7 @@ document.querySelectorAll('.sec-card').forEach(card => {
 
 $('home-retry-wrong-btn').addEventListener('click', () => {
   try {
-    const d = JSON.parse(localStorage.getItem('grammar-step08-score'));
+    const d = JSON.parse(localStorage.getItem(SCORE_KEY));
     if (!d || !d.wrongIds || !d.wrongIds.length) return;
     const allQ = Object.values(QUIZ_DATA).flat();
     const wrongQ = allQ.filter(q => d.wrongIds.includes(q.id));
@@ -288,7 +242,7 @@ function renderQ() {
   $('prog-fill').style.width = `${(cur / total) * 100}%`;
 
   const tag = $('q-tag');
-  tag.textContent = `STEP ${String(q.step).padStart(2, '0')}　${q.label}`;
+  tag.textContent = q.label;
   tag.className   = 'q-tag ' + q.tagClass;
   $('q-src').textContent = q.source ? `〈${q.source}〉` : '';
   $('q-important').style.display = q.important ? 'inline-block' : 'none';
@@ -298,6 +252,10 @@ function renderQ() {
   $('exb-zone').style.display  = 'none';
   $('exc-zone').style.display  = 'none';
   $('fill-zone').style.display = 'none';
+  $('write-zone').style.display = 'none';
+  $('q-passage-btn').style.display = q.passage ? '' : 'none';
+  $('q-note').style.display = q.note ? '' : 'none';
+  $('q-note').textContent = q.note || '';
   $('fb-card').className = 'fb-card';
   $('next-btn').className = 'next-btn';
   $('mark-btn').className = 'mark-btn';
@@ -307,7 +265,8 @@ function renderQ() {
 
   $('prev-q-btn').style.display = state.idx > 0 ? '' : 'none';
 
-  const isChoice = q.type !== 'exB' && q.type !== 'exC' && q.type !== 'fill';
+  buildTrackpad(q);
+  const isChoice = q.type === 'choice' && q.options.length <= 4;   // 5択以上はトラックパッドなし
   $('ans-pad').style.display = isChoice ? '' : 'none';
   const qBody = document.querySelector('.quiz-body');
   qBody.classList.toggle('pad-on', isChoice);
@@ -327,6 +286,8 @@ function renderQ() {
     renderExCQ(q);
   } else if (q.type === 'fill') {
     renderFillQ(q);
+  } else if (q.type === 'write') {
+    renderWriteQ(q);
   } else {
     $('opts').style.display = '';
     renderChoiceQ(q);
@@ -342,12 +303,11 @@ function renderChoiceQ(q) {
   const html = q.question.replace(/\(\s*\)/g, '<span class="blank">(　　　)</span>');
   $('q-text').innerHTML = html;
 
-  const NUMS = ['①', '②', '③', '④'];
   const container = $('opts');
   q.options.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'opt-btn';
-    btn.innerHTML = `<span class="opt-num">${NUMS[i]}</span><span>${opt}</span>`;
+    btn.innerHTML = `<span class="opt-num">${optLabel(q, i)}</span><span>${opt}</span>`;
     btn.addEventListener('click', () => selectOption(i));
     container.appendChild(btn);
   });
@@ -693,7 +653,9 @@ function recordResult(q, kind, isOK, extra) {
 }
 
 /* ── Replay a previously-answered question (read-only) ── */
-const NUMS = ['①', '②', '③', '④'];
+const NUMS = ['①', '②', '③', '④', '⑤', '⑥'];
+function optLabel(q, i) { return (q.labels && q.labels[i]) || NUMS[i]; }
+function answerText(q) { return `${optLabel(q, q.answer)} ${q.options[q.answer]}`; }
 
 function replayChoice(q, rec) {
   $('opts').querySelectorAll('.opt-btn').forEach((btn, i) => {
@@ -709,8 +671,8 @@ function replayChoice(q, rec) {
   tpLocked = true;
   showFeedback({
     isOK:     rec.isOK,
-    headText: rec.chosen === -1 ? `答え: ${NUMS[q.answer]}`
-            : rec.isOK ? '✓ 正解！' : `✗ 不正解　正解: ${NUMS[q.answer]}`,
+    headText: rec.chosen === -1 ? `答え: ${answerText(q)}`
+            : rec.isOK ? `✓ 正解！　${answerText(q)}` : `✗ 不正解　正解: ${answerText(q)}`,
     fixText: null, correctedText: null,
     traText: q.translation ? `[訳] ${q.translation}` : null,
     expText: q.explanation
@@ -768,6 +730,7 @@ function replayRecord(q, rec) {
   if (rec.kind === 'exB')       replayExB(q, rec);
   else if (rec.kind === 'exC')  replayExC(q, rec);
   else if (rec.kind === 'fill') replayFill(q, rec);
+  else if (rec.kind === 'write') replayWrite(q, rec);
   else                          replayChoice(q, rec);
 }
 
@@ -829,6 +792,53 @@ $('fill-input').addEventListener('keydown', e => {
 $('fill-check-btn').addEventListener('click', () => resolveFill(false));
 $('fill-reveal-btn').addEventListener('click', () => resolveFill(true));
 
+/* ── Write（英問英答：模範解答と見比べて自己採点） ── */
+function renderWriteQ(q) {
+  $('q-text').innerHTML = q.question;
+  $('write-zone').style.display = '';
+  $('write-input').value = '';
+  $('write-input').disabled = false;
+  $('write-phase1').style.display = '';
+  $('write-phase2').style.display = 'none';
+  $('write-check-btn').disabled = true;
+}
+
+$('write-input').addEventListener('input', () => {
+  if (!state.answered) $('write-check-btn').disabled = $('write-input').value.trim().length === 0;
+});
+$('write-check-btn').addEventListener('click', () => {
+  const q = state.queue[state.idx];
+  $('write-typed-val').textContent   = $('write-input').value.trim();
+  $('write-correct-val').textContent = q.answer;
+  $('write-input').disabled = true;
+  $('write-phase1').style.display = 'none';
+  $('write-phase2').style.display = '';
+});
+function resolveWrite(isOK, revealed) {
+  if (state.answered) return;
+  state.answered = true;
+  const q   = state.queue[state.idx];
+  const rec = recordResult(q, 'write', isOK, { typed: $('write-input').value.trim(), revealed });
+  replayWrite(q, rec);
+}
+$('write-self-ok').addEventListener('click', () => resolveWrite(true, false));
+$('write-self-ng').addEventListener('click', () => resolveWrite(false, false));
+$('write-reveal-btn').addEventListener('click', () => resolveWrite(false, true));
+
+function replayWrite(q, rec) {
+  $('write-input').value = rec.typed || '';
+  $('write-input').disabled = true;
+  $('write-phase1').style.display = 'none';
+  $('write-phase2').style.display = 'none';
+  showFeedback({
+    isOK:     rec.isOK,
+    headText: rec.revealed ? '模範解答' : rec.isOK ? '✓ 正解！' : '✗ 不正解',
+    fixText:  q.answer, correctedText: null,
+    traText:  q.translation ? `[訳] ${q.translation}` : null,
+    expText:  q.explanation
+  });
+}
+
 /* ── Shared feedback ── */
 function showFeedback({ isOK, headText, fixText, correctedText, traText, expText }) {
   const fb   = $('fb-card');
@@ -840,7 +850,10 @@ function showFeedback({ isOK, headText, fixText, correctedText, traText, expText
 
   fb.className     = `fb-card show ${isOK ? 'ok' : 'ng'}`;
   head.className   = `fb-head ${isOK ? 'ok' : 'ng'}`;
-  head.textContent = headText;
+  head.textContent = '';
+  const ht = document.createElement('span');   // 単語の長押し用に分割されても1行の文として折り返すよう包む
+  ht.textContent = headText;
+  head.appendChild(ht);
 
   if (fixText)       { fix.textContent = fixText; fix.style.display = 'block'; }
   else                 fix.style.display = 'none';
@@ -863,7 +876,7 @@ function showFeedback({ isOK, headText, fixText, correctedText, traText, expText
 
 function loadStoredWrongIds() {
   try {
-    const d = JSON.parse(localStorage.getItem('grammar-step08-score'));
+    const d = JSON.parse(localStorage.getItem(SCORE_KEY));
     return (d && Array.isArray(d.wrongIds)) ? d.wrongIds : [];
   } catch (_) { return []; }
 }
@@ -882,7 +895,7 @@ function saveProgress() {
     state.marked.forEach(id => set.add(id));
     const cumWrong = [...set];
 
-    localStorage.setItem('grammar-step08-score', JSON.stringify({ c: totalC, t: totalT, pct, wrongIds: cumWrong }));
+    localStorage.setItem(SCORE_KEY, JSON.stringify({ c: totalC, t: totalT, pct, wrongIds: cumWrong }));
     $('prev-card').style.display = '';
     $('prev-val').textContent = `${totalC}/${totalT} (${pct}%)`;
     const btn = $('home-retry-wrong-btn');
@@ -943,6 +956,14 @@ function tpClearHighlight() {
   $('tp-surface').querySelectorAll('.tp-zone').forEach(z => z.classList.remove('on'));
 }
 
+function buildTrackpad(q) {
+  const n = q.type === 'choice' ? q.options.length : 0;
+  const pad = $('ans-pad');
+  pad.classList.toggle('tp-off', n === 0 || n > 4);
+  if (n === 0 || n > 4) return;
+  $('tp-surface').innerHTML = q.options.map((_, i) => `<div class="tp-zone">${optLabel(q, i)}</div>`).join('');
+}
+
 function tpGetZoneFromTouch(touch) {
   const surface = $('tp-surface');
   const rect = surface.getBoundingClientRect();
@@ -951,8 +972,9 @@ function tpGetZoneFromTouch(touch) {
   const center = rect.height / 2;
   const y = center + (rawY - center) * 1.5;
   const clamped = Math.max(0, Math.min(rect.height, y));
-  const zoneHeight = rect.height / 4;
-  return Math.min(3, Math.floor(clamped / zoneHeight));
+  const n = $('tp-surface').querySelectorAll('.tp-zone').length || 4;
+  const zoneHeight = rect.height / n;
+  return Math.min(n - 1, Math.floor(clamped / zoneHeight));
 }
 
 function tpIsInsideSurface(e) {
@@ -1009,6 +1031,7 @@ $('prev-q-btn').addEventListener('click', () => {
 
 /* ── 問題一覧プルダウン ── */
 function qListText(q) {
+  if (q.type === 'write') return q.question;
   if (q.type === 'exC' || q.type === 'fill')
     return (q.japanese || q.translation || q.answer || '並べかえ問題').replace(/<br\s*\/?>/g, ' ');
   // choice / exB: 本文（①②③④の記号は除去）
@@ -1128,16 +1151,11 @@ function showResults() {
   else if (pct >= 60) $('res-h2').textContent = 'クイズ完了！ 👍';
   else                $('res-h2').textContent = 'クイズ完了！';
 
-  const SEC_NAMES = {
-    frames: 'FRAME（例題）',
-    exA:    'Exercise A（空所補充）',
-    exB:    'Exercise B（誤文訂正）',
-    exC:    'Exercise C（整序英作文）'
-  };
+  const SEC_NAMES = Object.fromEntries(SECTIONS.map(x => [x.key, x.name]));
 
   const container = $('sec-results');
   container.innerHTML = '';
-  ['frames', 'exA', 'exB', 'exC'].forEach(key => {
+  SEC_KEYS.forEach(key => {
     const s = stats[key];
     if (!s || s.t === 0) return;
     const p    = Math.round(s.c / s.t * 100);
@@ -1239,3 +1257,21 @@ if (_p === 'eigo') {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
+
+/* ── 本文（UNLOCK）を読む：英文と和訳 ── */
+(function setupPassage() {
+  const P = PASSAGES.unlock;
+  $('passage-title').textContent    = P.title;
+  $('passage-title-ja').textContent = P.titleJa;
+  $('passage-body').innerHTML = P.paras.map((en, i) =>
+    `<p class="ps-en">${en}</p><p class="ps-ja">${P.ja[i]}</p>`).join('');
+  const open  = () => { $('passage-overlay').classList.add('show'); document.body.classList.add('no-scroll'); };
+  const close = () => { $('passage-overlay').classList.remove('show'); document.body.classList.remove('no-scroll'); };
+  $('home-passage-btn').addEventListener('click', open);
+  $('q-passage-btn').addEventListener('click', open);
+  $('passage-close').addEventListener('click', close);
+  $('passage-ja-toggle').addEventListener('click', () => {
+    const on = $('passage-overlay').classList.toggle('show-ja');
+    $('passage-ja-toggle').textContent = on ? '和訳をかくす' : '和訳を表示';
+  });
+})();

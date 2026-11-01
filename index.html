@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#1a1a1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="英文法マスター">
-  <title>英文法マスター STEP 08・13</title>
+  <meta name="apple-mobile-web-app-title" content="第2回テスト">
+  <title>高2 2学期第2回テスト</title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,6 +85,44 @@
     .tag-a { background: #ececec; color: #333; border: 1px solid #ccc; }
     .tag-b { background: #ececec; color: #333; border: 1px solid #ccc; }
     .tag-c { background: #ececec; color: #333; border: 1px solid #ccc; }
+
+    /* ── テスト・本文 ── */
+    .test-card { margin-bottom: 10px; }
+    .test-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+    .test-sub  { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 2px; }
+    .passage-open-btn {
+      display: flex; align-items: center; justify-content: space-between; width: 100%;
+      padding: 13px 16px; border-radius: var(--r); border: 2px solid var(--br);
+      background: var(--card); color: var(--tx); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    .passage-open-btn span { font-size: 12px; font-weight: 500; color: var(--mu); }
+    .q-passage-btn {
+      display: inline-block; margin-bottom: 10px; padding: 5px 12px; border-radius: 20px;
+      border: 1px solid var(--br); background: var(--pl); color: var(--tx); font: inherit; font-size: 13px; cursor: pointer;
+    }
+    .q-note { margin-top: 10px; font-size: 13px; color: var(--mu); line-height: 1.6; }
+    .write-input { width: 100%; resize: vertical; min-height: 84px; font-family: inherit; line-height: 1.5; }
+    .passage-overlay {
+      position: fixed; inset: 0; z-index: 900; background: var(--bg);
+      display: none; flex-direction: column;
+    }
+    .passage-overlay.show { display: flex; }
+    body.no-scroll { overflow: hidden; }
+    .passage-top {
+      display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+      background: var(--card); border-bottom: 1px solid var(--br);
+    }
+    .passage-head { flex: 1; font-weight: 800; letter-spacing: .05em; }
+    .passage-ja-toggle {
+      padding: 6px 12px; border-radius: 20px; border: 1px solid var(--br);
+      background: var(--pl); color: var(--tx); font: inherit; font-size: 13px; cursor: pointer;
+    }
+    .passage-close { border: none; background: none; font-size: 20px; color: var(--mu); cursor: pointer; padding: 4px 8px; }
+    .passage-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px 16px 48px; max-width: 680px; width: 100%; margin: 0 auto; }
+    .passage-title { font-weight: 700; font-size: 16px; line-height: 1.6; margin-bottom: 4px; }
+    .ps-en { font-size: 16px; line-height: 1.85; text-indent: 1.2em; margin-top: 14px; }
+    .ps-ja { display: none; font-size: 14px; line-height: 1.8; color: var(--mu); margin-top: 6px; padding: 8px 10px; background: var(--card); border-radius: var(--r); }
+    .passage-overlay.show-ja .ps-ja { display: block; }
 
     /* ── 長押しで単語の意味 ── */
     .w { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; border-radius: 3px; transition: background .12s; }
@@ -708,7 +746,7 @@
         <span class="menu-icon">📚</span>
         <div>
           <div class="menu-item-title">文法</div>
-          <div class="menu-item-sub">STEP 08・13</div>
+          <div class="menu-item-sub">高2 2学期第2回テスト</div>
         </div>
       </button>
       <button class="menu-item" id="menu-eigo">
@@ -737,20 +775,18 @@
       <span></span><span></span><span></span>
     </button>
     <h1>英文法マスター</h1>
-    <p>STEP 08 動詞の語法 ／ STEP 13 形容詞と副詞の語法</p>
+    <p>高2 2学期第2回テスト対策</p>
   </div>
   <div class="home-body">
-    <p class="sec-lbl">出題単元（複数選べます）</p>
-    <div class="unit-card topic-btn" data-topic="step08" role="button" aria-pressed="false">
-      <span class="unit-chk"></span>
-      <span class="unit-name">STEP 08　動詞の語法</span>
-      <span class="unit-sub" id="topic-cnt-step08">-問</span>
+    <p class="sec-lbl">範囲</p>
+    <div class="unit-card test-card">
+      <span class="test-info">
+        <span class="unit-name" id="test-title">高2 2学期第2回テスト</span>
+        <span class="test-sub" id="test-sub"></span>
+      </span>
+      <span class="unit-sub" id="test-cnt">-問</span>
     </div>
-    <div class="unit-card topic-btn" data-topic="step13" role="button" aria-pressed="false">
-      <span class="unit-chk"></span>
-      <span class="unit-name">STEP 13　形容詞と副詞の語法</span>
-      <span class="unit-sub" id="topic-cnt-step13">-問</span>
-    </div>
+    <button type="button" class="passage-open-btn" id="home-passage-btn">📖 本文（UNLOCK）を読む<span>和訳つき</span></button>
 
     <p class="sec-lbl mt">チェックした問題</p>
     <button type="button" class="marked-card" id="marked-btn">
@@ -762,31 +798,9 @@
       <span class="mk-go">→</span>
     </button>
 
-    <p class="sec-lbl mt">出題形式を選択</p>
+    <p class="sec-lbl mt">大問を選択</p>
 
-    <div class="sec-card on" data-sec="frames">
-      <div class="chk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="sec-info"><div class="sec-name">FRAME（例題）</div><div class="sec-sub" id="sub-frames">- 問 · 基本パターン</div></div>
-      <span class="sec-tag tag-f">基礎</span>
-    </div>
-
-    <div class="sec-card on" data-sec="exA">
-      <div class="chk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="sec-info"><div class="sec-name">Exercise A（空所補充）</div><div class="sec-sub" id="sub-exA">- 問 · 最も適切な語句を選ぶ</div></div>
-      <span class="sec-tag tag-a">選択</span>
-    </div>
-
-    <div class="sec-card on" data-sec="exB">
-      <div class="chk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="sec-info"><div class="sec-name">Exercise B（誤文訂正）</div><div class="sec-sub" id="sub-exB">- 問 · 誤りを含む番号を選ぶ</div></div>
-      <span class="sec-tag tag-b">誤文</span>
-    </div>
-
-    <div class="sec-card on" data-sec="exC">
-      <div class="chk"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="sec-info"><div class="sec-name">Exercise C（整序英作文）</div><div class="sec-sub" id="sub-exC">- 問 · 語句を並べかえる（確認問題）</div></div>
-      <span class="sec-tag tag-c">整序</span>
-    </div>
+    <div id="sec-list"></div>
 
     <button class="start-btn" id="start-btn">スタート →</button>
     <p class="lookup-hint">英単語を長押しすると日本語の意味が出ます</p>
@@ -840,7 +854,9 @@
     </div>
 
     <div class="q-card">
+      <button type="button" class="q-passage-btn" id="q-passage-btn" style="display:none">📖 本文を見る</button>
       <div class="q-text" id="q-text"></div>
+      <div class="q-note" id="q-note" style="display:none"></div>
       <div class="q-ja"  id="q-ja"></div>
     </div>
 
@@ -899,6 +915,34 @@
         placeholder="空所に入る語を入力...">
       <button class="check-btn" id="fill-check-btn" disabled>確認する</button>
       <button class="exb-reveal-btn" id="fill-reveal-btn">答えを見る</button>
+    </div>
+
+    <!-- Write zone (英問英答：自己採点) -->
+    <div id="write-zone" style="display:none">
+      <div id="write-phase1">
+        <textarea id="write-input" class="exb-input-field write-input" rows="3"
+          autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false"
+          placeholder="英語で答えを書く..."></textarea>
+        <button class="check-btn" id="write-check-btn" disabled>模範解答と比べる</button>
+        <button class="exb-reveal-btn" id="write-reveal-btn">答えを見る</button>
+      </div>
+      <div id="write-phase2" style="display:none">
+        <div class="exb-compare">
+          <div class="exb-compare-row">
+            <span class="exb-cmp-lbl">あなた</span>
+            <span id="write-typed-val" class="exb-cmp-val"></span>
+          </div>
+          <div class="exb-compare-row">
+            <span class="exb-cmp-lbl">模範</span>
+            <span id="write-correct-val" class="exb-cmp-val ok"></span>
+          </div>
+        </div>
+        <p class="exb-self-q">内容が合っていれば○（言い回しは違ってもOK）</p>
+        <div class="exb-self-btns">
+          <button id="write-self-ok" class="exb-self-btn ok">○ 合ってた</button>
+          <button id="write-self-ng" class="exb-self-btn ng">✗ 違った</button>
+        </div>
+      </div>
     </div>
 
     <!-- Feedback (choice & exB) -->
@@ -971,9 +1015,22 @@
 </div>
 
 
-<script src="js/data.js?v=15"></script>
-<script src="js/dict.js?v=2"></script>
-<script src="js/app.js?v=32"></script>
-<script src="js/lookup.js?v=1"></script>
+<div class="passage-overlay" id="passage-overlay" role="dialog" aria-label="本文">
+  <div class="passage-top">
+    <span class="passage-head">UNLOCK</span>
+    <button type="button" class="passage-ja-toggle" id="passage-ja-toggle">和訳を表示</button>
+    <button type="button" class="passage-close" id="passage-close" aria-label="閉じる">✕</button>
+  </div>
+  <div class="passage-scroll" id="passage-scroll">
+    <p class="passage-title" id="passage-title"></p>
+    <p class="ps-ja passage-title-ja" id="passage-title-ja"></p>
+    <div id="passage-body"></div>
+  </div>
+</div>
+
+<script src="js/data.js?v=16"></script>
+<script src="js/dict.js?v=3"></script>
+<script src="js/app.js?v=33"></script>
+<script src="js/lookup.js?v=2"></script>
 </body>
 </html>
