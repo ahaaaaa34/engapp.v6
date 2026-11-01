@@ -6,19 +6,101 @@ const TEST_INFO = { title: '高2 2学期第2回テスト', sub: 'UNLOCK 読解�
 
 const PASSAGES = { unlock: {
   "heading": "UNLOCK",
-  "title": "Should the fight against obesity focus on food advertising or school education? Discuss both sides of the argument and give your opinion.",
-  "titleJa": "肥満との闘いは，食品広告と学校教育のどちらに重点を置くべきか。議論の両面を論じ，自分の意見を述べなさい。",
-  "paras": [
-    "The number of people with obesity has increased a lot around the world in recent decades. In the past, this health concern was mainly seen in rich countries, but now it is also growing rapidly in poorer nations. Eating unhealthy food and not exercising enough are widely recognized as the primary reasons for this problem. However, experts have different ideas about how to deal with this issue. Some people think that limiting food advertisements is the best way to solve it, while others believe that improving health education in schools is a more effective approach.",
-    "On the one hand, people who support limiting advertisements say that food marketing has a strong influence on what people choose to eat every day. Children and young adults see hundreds of ads for sugary drinks, fast food, and packaged snacks on TV and social media. These ads use bright colors, popular characters, and fun words to make unhealthy food look very attractive. Research shows that seeing these commercials directly increases people's desire to buy and eat junk food. Therefore, stopping or controlling ads for unhealthy food—especially during times when children are watching—could significantly help lower the demand for these products.",
-    "On the other hand, many people argue that school education plays a more important role in solving the obesity problem long-term. They point out that simply removing ads does not teach young people how to choose a healthy diet. In school, through cooking and nutrition classes, students can learn how to plan balanced meals and understand daily calorie needs. Also, schools can offer daily physical education and create fun sports events to encourage students to stay active. Supporters of this idea believe that building good lifestyle habits at school helps students stay healthy for their whole lives.",
-    "In conclusion, both ad control and school education offer important ways to deal with obesity. In my opinion, we need to use both strategies together. Limiting ads can quickly reduce how often young people see junk food, while school education gives them the essential knowledge to make healthy choices on their own. Using both methods together will create the strongest defense against rising obesity rates worldwide."
+  "title": [
+    {
+      "en": "Should the fight against obesity focus on food advertising or school education?",
+      "ja": "肥満との闘いは，食品広告と学校教育のどちらに重点を置くべきか。"
+    },
+    {
+      "en": "Discuss both sides of the argument and give your opinion.",
+      "ja": "議論の両面を論じ，自分の意見を述べなさい。"
+    }
   ],
-  "ja": [
-    "肥満の人の数は，ここ数十年で世界中で大きく増えた。かつてこの健康問題は主に裕福な国々で見られたが，今では貧しい国々でも急速に増えている。不健康な食べ物を食べることと，十分に運動しないことが，この問題の主な原因として広く認められている。しかし，この問題にどう対処するかについては，専門家の間でも考えが分かれている。食品広告を制限することが最善の解決策だと考える人もいれば，学校での健康教育を改善するほうが効果的な方法だと考える人もいる。",
-    "一方で，広告の制限を支持する人々は，食品のマーケティングは人々が毎日何を食べるかに強い影響を与えていると言う。子どもや若者は，テレビやソーシャルメディアで，砂糖入りの飲み物やファストフード，袋入りのお菓子の広告を何百も目にしている。これらの広告は，明るい色や人気のキャラクター，楽しい言葉を使って，不健康な食べ物をとても魅力的に見せている。研究によれば，こうしたコマーシャルを見ると，ジャンクフードを買って食べたいという人々の欲求が直接高まる。したがって，不健康な食べ物の広告を――特に子どもが見ている時間帯に――止めたり規制したりすれば，こうした商品の需要を大きく下げる助けになりうる。",
-    "他方で，多くの人々は，肥満の問題を長期的に解決するうえでは学校教育のほうが重要な役割を果たすと主張する。彼らは，広告をなくすだけでは，若者に健康的な食事の選び方を教えることにはならないと指摘する。学校では，料理や栄養の授業を通して，生徒はバランスのとれた食事の組み立て方を学び，1日に必要なカロリーを理解することができる。また，学校は毎日体育の授業を行い，楽しいスポーツ行事を企画して，生徒が活動的でいられるよう促すこともできる。この考えを支持する人々は，学校でよい生活習慣を身につけることが，生徒が一生健康でいる助けになると考えている。",
-    "結論として，広告の規制と学校教育はどちらも，肥満に対処するための重要な方法となる。私の意見では，両方の戦略を一緒に用いる必要がある。広告を制限すれば，若者がジャンクフードを目にする頻度をすぐに減らすことができ，一方で学校教育は，彼らが自分で健康的な選択をするために欠かせない知識を与えてくれる。両方の方法を一緒に用いることで，世界中で上昇し続ける肥満率に対する最も強力な防御策が生まれるだろう。"
+  "paras": [
+    [
+      {
+        "en": "The number of people with obesity has increased a lot around the world in recent decades.",
+        "ja": "肥満の人の数は，ここ数十年で世界中で大きく増えた。"
+      },
+      {
+        "en": "In the past, this health concern was mainly seen in rich countries, but now it is also growing rapidly in poorer nations.",
+        "ja": "かつてこの健康問題は主に裕福な国々で見られたが，今では貧しい国々でも急速に増えている。"
+      },
+      {
+        "en": "Eating unhealthy food and not exercising enough are widely recognized as the primary reasons for this problem.",
+        "ja": "不健康な食べ物を食べることと，十分に運動しないことが，この問題の主な原因として広く認められている。"
+      },
+      {
+        "en": "However, experts have different ideas about how to deal with this issue.",
+        "ja": "しかし，この問題にどう対処するかについては，専門家の間でも考えが分かれている。"
+      },
+      {
+        "en": "Some people think that limiting food advertisements is the best way to solve it, while others believe that improving health education in schools is a more effective approach.",
+        "ja": "食品広告を制限することが最善の解決策だと考える人もいれば，学校での健康教育を改善するほうが効果的な方法だと考える人もいる。"
+      }
+    ],
+    [
+      {
+        "en": "On the one hand, people who support limiting advertisements say that food marketing has a strong influence on what people choose to eat every day.",
+        "ja": "一方で，広告の制限を支持する人々は，食品のマーケティングは人々が毎日何を食べるかに強い影響を与えていると言う。"
+      },
+      {
+        "en": "Children and young adults see hundreds of ads for sugary drinks, fast food, and packaged snacks on TV and social media.",
+        "ja": "子どもや若者は，テレビやソーシャルメディアで，砂糖入りの飲み物やファストフード，袋入りのお菓子の広告を何百も目にしている。"
+      },
+      {
+        "en": "These ads use bright colors, popular characters, and fun words to make unhealthy food look very attractive.",
+        "ja": "これらの広告は，明るい色や人気のキャラクター，楽しい言葉を使って，不健康な食べ物をとても魅力的に見せている。"
+      },
+      {
+        "en": "Research shows that seeing these commercials directly increases people's desire to buy and eat junk food.",
+        "ja": "研究によれば，こうしたコマーシャルを見ると，ジャンクフードを買って食べたいという人々の欲求が直接高まる。"
+      },
+      {
+        "en": "Therefore, stopping or controlling ads for unhealthy food—especially during times when children are watching—could significantly help lower the demand for these products.",
+        "ja": "したがって，不健康な食べ物の広告を――特に子どもが見ている時間帯に――止めたり規制したりすれば，こうした商品の需要を大きく下げる助けになりうる。"
+      }
+    ],
+    [
+      {
+        "en": "On the other hand, many people argue that school education plays a more important role in solving the obesity problem long-term.",
+        "ja": "他方で，多くの人々は，肥満の問題を長期的に解決するうえでは学校教育のほうが重要な役割を果たすと主張する。"
+      },
+      {
+        "en": "They point out that simply removing ads does not teach young people how to choose a healthy diet.",
+        "ja": "彼らは，広告をなくすだけでは，若者に健康的な食事の選び方を教えることにはならないと指摘する。"
+      },
+      {
+        "en": "In school, through cooking and nutrition classes, students can learn how to plan balanced meals and understand daily calorie needs.",
+        "ja": "学校では，料理や栄養の授業を通して，生徒はバランスのとれた食事の組み立て方を学び，1日に必要なカロリーを理解することができる。"
+      },
+      {
+        "en": "Also, schools can offer daily physical education and create fun sports events to encourage students to stay active.",
+        "ja": "また，学校は毎日体育の授業を行い，楽しいスポーツ行事を企画して，生徒が活動的でいられるよう促すこともできる。"
+      },
+      {
+        "en": "Supporters of this idea believe that building good lifestyle habits at school helps students stay healthy for their whole lives.",
+        "ja": "この考えを支持する人々は，学校でよい生活習慣を身につけることが，生徒が一生健康でいる助けになると考えている。"
+      }
+    ],
+    [
+      {
+        "en": "In conclusion, both ad control and school education offer important ways to deal with obesity.",
+        "ja": "結論として，広告の規制と学校教育はどちらも，肥満に対処するための重要な方法となる。"
+      },
+      {
+        "en": "In my opinion, we need to use both strategies together.",
+        "ja": "私の意見では，両方の戦略を一緒に用いる必要がある。"
+      },
+      {
+        "en": "Limiting ads can quickly reduce how often young people see junk food, while school education gives them the essential knowledge to make healthy choices on their own.",
+        "ja": "広告を制限すれば，若者がジャンクフードを目にする頻度をすぐに減らすことができ，一方で学校教育は，彼らが自分で健康的な選択をするために欠かせない知識を与えてくれる。"
+      },
+      {
+        "en": "Using both methods together will create the strongest defense against rising obesity rates worldwide.",
+        "ja": "両方の方法を一緒に用いることで，世界中で上昇し続ける肥満率に対する最も強力な防御策が生まれるだろう。"
+      }
+    ]
   ]
 } };
 

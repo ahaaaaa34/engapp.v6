@@ -120,9 +120,17 @@
     .passage-close { border: none; background: none; font-size: 20px; color: var(--mu); cursor: pointer; padding: 4px 8px; }
     .passage-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px 16px 48px; max-width: 680px; width: 100%; margin: 0 auto; }
     .passage-title { font-weight: 700; font-size: 16px; line-height: 1.6; margin-bottom: 4px; }
-    .ps-en { font-size: 16px; line-height: 1.85; text-indent: 1.2em; margin-top: 14px; }
-    .ps-ja { display: none; font-size: 14px; line-height: 1.8; color: var(--mu); margin-top: 6px; padding: 8px 10px; background: var(--card); border-radius: var(--r); }
-    .passage-overlay.show-ja .ps-ja { display: block; }
+    .ps-para { font-size: 16px; line-height: 1.85; text-indent: 1.2em; margin-top: 14px; }
+    .ps-ja { display: none; }
+    /* 和訳表示：1文ごとに改行して，すぐ下に訳 */
+    .passage-overlay.show-ja .ps-para { text-indent: 0; }
+    .passage-overlay.show-ja .ps-para + .ps-para { border-top: 1px dashed var(--br); padding-top: 6px; }
+    .passage-overlay.show-ja .ps-s { display: block; margin-top: 10px; }
+    .passage-overlay.show-ja .ps-ja {
+      display: block; margin-top: 4px; padding: 6px 10px;
+      font-size: 14px; font-weight: 400; line-height: 1.7; color: var(--mu);
+      background: var(--card); border-radius: var(--r);
+    }
 
     /* ── 長押しで単語の意味 ── */
     .w { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; border-radius: 3px; transition: background .12s; }
@@ -1023,14 +1031,13 @@
   </div>
   <div class="passage-scroll" id="passage-scroll">
     <p class="passage-title" id="passage-title"></p>
-    <p class="ps-ja passage-title-ja" id="passage-title-ja"></p>
     <div id="passage-body"></div>
   </div>
 </div>
 
-<script src="js/data.js?v=16"></script>
+<script src="js/data.js?v=17"></script>
 <script src="js/dict.js?v=3"></script>
-<script src="js/app.js?v=33"></script>
+<script src="js/app.js?v=34"></script>
 <script src="js/lookup.js?v=2"></script>
 </body>
 </html>

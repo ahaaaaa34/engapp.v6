@@ -1261,10 +1261,10 @@ if ('serviceWorker' in navigator) {
 /* ── 本文（UNLOCK）を読む：英文と和訳 ── */
 (function setupPassage() {
   const P = PASSAGES.unlock;
-  $('passage-title').textContent    = P.title;
-  $('passage-title-ja').textContent = P.titleJa;
-  $('passage-body').innerHTML = P.paras.map((en, i) =>
-    `<p class="ps-en">${en}</p><p class="ps-ja">${P.ja[i]}</p>`).join('');
+  // 1文ずつ「英文＋和訳」。和訳を表示すると文ごとに改行して訳が出る
+  const sent = s => `<span class="ps-s"><span class="ps-en">${s.en}</span> <span class="ps-ja">${s.ja}</span></span> `;
+  $('passage-title').innerHTML = P.title.map(sent).join('');
+  $('passage-body').innerHTML  = P.paras.map(p => `<p class="ps-para">${p.map(sent).join('')}</p>`).join('');
   const open  = () => { $('passage-overlay').classList.add('show'); document.body.classList.add('no-scroll'); };
   const close = () => { $('passage-overlay').classList.remove('show'); document.body.classList.remove('no-scroll'); };
   $('home-passage-btn').addEventListener('click', open);

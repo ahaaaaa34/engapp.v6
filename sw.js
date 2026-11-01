@@ -1,4 +1,4 @@
-const CACHE = 'test2-v1';
+const CACHE = 'test2-v2';
 const ASSETS = ['./', './index.html', './js/data.js', './js/app.js', './js/dict.js', './js/lookup.js', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
